@@ -1,14 +1,8 @@
-ID#,FirstName,LastName,Collegecode,CollegeName
-sda,dsad,sdads,CCS,College of Computer Studies
-dsa,sdas,xz,CCS,College of Computer Studies
-sda,fdsdf,dasd,,
-sdas,sadasd,sdasd,CCS,College of Computer Studies
-gg,dsadsa,h,CCS,College of Computer Studies
-dfds,ddsa,fgf,CCS,College of Computer Studies
-dsasd,dqdsa,wdas,CEBA,College of Computer Studies
-sdad,sdad,dasdsa,CCS,College of Computer Studies
-saddsa,dsad,dsadsa,COE,College of Engineering
-CCS,College of Computer Studies
-CCS,College of Computer Studies
-CCS,College of Computer Studies
-CCS,College of Computer Studies
+Collegecode,CollegeName
+CSM,College of Science and Mathematics
+CASS,College of Arts and Social Sciences
+CED,College of Education
+CASS,College of Arts and Social Sciences
+CEBA,College of Economics and Business Administration
+COE,College of Engineering
+CHS,College of Health Sciences

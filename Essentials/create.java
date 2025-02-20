@@ -9,23 +9,13 @@ public class create {
 
     public create() {
     
-        createFileWithHeaderIfNeeded(FILE_PATH, "ID#,First Name,Last Name,Age,Year Level,Gender,Program Code\n");
+        
     }
 
-    private void createFileWithHeaderIfNeeded(String path, String header) {
-        File file = new File(path);
-        if (!file.exists()) {
-            try (PrintWriter pw = new PrintWriter(new FileWriter(path, true))) {
-                pw.write(header);
-            } catch (IOException e) {
-                System.out.println("Error creating the file: " + path);
-            }
-        }
-    }
 
-    public void addStudent(String id, String firstName, String lastName, int age, String yearLevel, String gender, String programCode) {
+public void addStudent(String id, String firstName, String lastName, String yearLevel, String gender, String programCode) {
         try (PrintWriter pw = new PrintWriter(new FileWriter(FILE_PATH, true))) {
-            pw.println(id + "," + firstName + "," + lastName + "," + age + "," + yearLevel + "," + gender + "," + programCode);
+            pw.println(id + "," + firstName + "," + lastName + "," + yearLevel + "," + gender + "," + programCode);
         } catch (IOException e) {
             System.out.println("Error writing to the student file.");
         }
@@ -34,7 +24,6 @@ public class create {
     public void program( String programCode, String programName, String college) {
         // Do not create a file unless data is being added
     
-        
 
         try (PrintWriter pw = new PrintWriter(new FileWriter(PROGRAM_FILE, true))) {
             
