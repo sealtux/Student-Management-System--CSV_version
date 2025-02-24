@@ -5,7 +5,6 @@ import javax.swing.table.DefaultTableModel;
 import java.io.*;
 import java.util.List;
 import java.util.ArrayList;
-
 import Essentials.GUI;
 
 public class modifyprogram {
@@ -20,111 +19,138 @@ public class modifyprogram {
         this.maingui = gui;
         this.model = maingui.getprogramModel();  // Assumes your GUI provides this method
         
-        // Create a simple modify dialog that prompts for a Program Code
+        // Create a modal dialog that prompts for a Program Code
+        JDialog modifyDialog = new JDialog((java.awt.Frame) null, "Modify Program", true);
+        modifyDialog.setLayout(null);
+        modifyDialog.setSize(300, 180);
+        modifyDialog.setLocationRelativeTo(null);
+        modifyDialog.setResizable(false);
+        
         JTextField checkerField = new JTextField();
         JLabel programChecker = new JLabel("Enter Program Code:");
         JButton programCheckerSubmit = new JButton("MODIFY");
-        JFrame modify = new JFrame("Modify Program");
-        modify.setLayout(null);
-        modify.setSize(300, 180);
+        
         programChecker.setBounds(30, 30, 180, 25);
         checkerField.setBounds(150, 30, 80, 25);
         programCheckerSubmit.setBounds(85, 80, 130, 25);
-        modify.add(programChecker);
-        modify.add(checkerField);
-        modify.add(programCheckerSubmit);
-        modify.setVisible(true);
-       
+        
+        modifyDialog.add(programChecker);
+        modifyDialog.add(checkerField);
+        modifyDialog.add(programCheckerSubmit);
+        
+        // Add action listener before showing the dialog
         programCheckerSubmit.addActionListener(e -> {
             String enteredCode = checkerField.getText().trim();
             if (enteredCode.isEmpty()) {
-                JOptionPane.showMessageDialog(modify, "Please enter a Program Code.");
+                JOptionPane.showMessageDialog(modifyDialog, "Please enter a Program Code.");
                 return;
             }
             // Search for the record in the CSV file for programs
             String[] record = searchCSVForProgramByCode(enteredCode);
             if (record == null) {
-                JOptionPane.showMessageDialog(modify, "Record with Program Code " + enteredCode + " not found.");
+                JOptionPane.showMessageDialog(modifyDialog, "Record with Program Code " + enteredCode + " not found.");
             } else {
                 // Open the edit form with the record data
                 modifiedFrame(record);
             }
-            modify.dispose();
+            modifyDialog.dispose();
         });
+        
+        modifyDialog.setVisible(true);
     }
     
     // Opens an edit form pre-populated with the program's data.
     // Allows the user to change the Program Code.
     private void modifiedFrame(String[] record) {
-    // Store the original program code for lookup
-    final String originalCode = record[0];
-    
-    JFrame editFrame = new JFrame("Edit Program");
-    editFrame.setSize(350, 250);
-    editFrame.setLayout(null);
-    editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    
-    // Program Code (editable text field)
-    JLabel codeLabel = new JLabel("Program Code:");
-    JTextField codeField = new JTextField(record[0]);
-    
-    // Program Name (editable text field)
-    JLabel nameLabel = new JLabel("Program Name:");
-    JTextField nameField = new JTextField(record[1]);
-    
-    // College Code (now a JComboBox)
-    JLabel collegeCodeLabel = new JLabel("College Code:");
-    String[] collegeOptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
-    JComboBox<String> collegeCodeCombo = new JComboBox<>(collegeOptions);
-    // Set the selected item to the existing college code from the record
-    collegeCodeCombo.setSelectedItem(record[2]);
-    
-    // Set bounds for components
-    codeLabel.setBounds(20, 20, 100, 25);
-    codeField.setBounds(130, 20, 150, 25);
-    nameLabel.setBounds(20, 60, 100, 25);
-    nameField.setBounds(130, 60, 150, 25);
-    collegeCodeLabel.setBounds(20, 100, 100, 25);
-    collegeCodeCombo.setBounds(130, 100, 150, 25);
-    
-    JButton updateButton = new JButton("Update");
-    updateButton.setBounds(130, 150, 100, 30);
-    
-    // Add components to the frame
-    editFrame.add(codeLabel);
-    editFrame.add(codeField);
-    editFrame.add(nameLabel);
-    editFrame.add(nameField);
-    editFrame.add(collegeCodeLabel);
-    editFrame.add(collegeCodeCombo);
-    editFrame.add(updateButton);
-    
-    editFrame.setVisible(true);
-    
-    updateButton.addActionListener(ae -> {
-        // Get new values from fields
-        String newCode = codeField.getText().trim();
-        String newName = nameField.getText().trim();
-        String newCollegeCode = (String) collegeCodeCombo.getSelectedItem();
+        // Store the original program code for lookup
+        final String originalCode = record[0];
         
-        // Prepare the updated record array
-        String[] newRecord = { newCode, newName, newCollegeCode };
+        // Create a modal dialog for the edit form
+        JDialog editDialog = new JDialog((java.awt.Frame) null, "Edit Program", true);
+        editDialog.setSize(350, 250);
+        editDialog.setLayout(null);
+        editDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        editDialog.setLocationRelativeTo(null);
+        editDialog.setResizable(false);
         
-        // Use the originalCode to find the table model row
-        int modelRow = findRowByProgramCode(originalCode);
-        if (modelRow != -1) {
-            model.setValueAt(newCode, modelRow, 0);
-            model.setValueAt(newName, modelRow, 1);
-            model.setValueAt(newCollegeCode, modelRow, 2);
+        // Program Code (editable text field)
+        JLabel codeLabel = new JLabel("Program Code:");
+        JTextField codeField = new JTextField(record[0]);
+        
+        // Program Name (editable text field)
+        JLabel nameLabel = new JLabel("Program Name:");
+        JTextField nameField = new JTextField(record[1]);
+        
+        // College Code (JComboBox)
+        JLabel collegeCodeLabel = new JLabel("College Code:");
+        String[] collegeOptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
+        JComboBox<String> collegeCodeCombo = new JComboBox<>(collegeOptions);
+        // Set the selected item to the existing college code from the record
+        collegeCodeCombo.setSelectedItem(record[2]);
+        
+        // Set bounds for components
+        codeLabel.setBounds(20, 20, 100, 25);
+        codeField.setBounds(130, 20, 150, 25);
+        nameLabel.setBounds(20, 60, 100, 25);
+        nameField.setBounds(130, 60, 150, 25);
+        collegeCodeLabel.setBounds(20, 100, 100, 25);
+        collegeCodeCombo.setBounds(130, 100, 150, 25);
+        
+        JButton updateButton = new JButton("Update");
+        updateButton.setBounds(130, 150, 100, 30);
+        
+        // Add components to the dialog
+        editDialog.add(codeLabel);
+        editDialog.add(codeField);
+        editDialog.add(nameLabel);
+        editDialog.add(nameField);
+        editDialog.add(collegeCodeLabel);
+        editDialog.add(collegeCodeCombo);
+        editDialog.add(updateButton);
+        
+        // Add action listener for update BEFORE showing dialog
+        updateButton.addActionListener(ae -> {
+            // Get new values from fields
+            String newCode = codeField.getText().trim();
+            String newName = nameField.getText().trim();
+            String newCollegeCode = (String) collegeCodeCombo.getSelectedItem();
             
-            updateProgramCSVFile(modelRow, newRecord);
-        } else {
-            JOptionPane.showMessageDialog(editFrame, "Record not found in the table.");
-        }
-        editFrame.dispose();
-    });
-}
-
+            // Validate that none of the fields are empty
+            if (newCode.isEmpty() || newName.isEmpty() || newCollegeCode.isEmpty()) {
+                JOptionPane.showMessageDialog(editDialog, "All fields must be filled.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // If the new program code is different from the original, check for duplicates
+            if (!newCode.equals(originalCode)) {
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    String existingCode = model.getValueAt(i, 0).toString().trim();
+                    if (existingCode.equals(newCode)) {
+                        JOptionPane.showMessageDialog(editDialog, "A record with Program Code " + newCode + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
+            
+            // Prepare the updated record array
+            String[] newRecord = { newCode, newName, newCollegeCode };
+            
+            // Find the table model row corresponding to the original program code
+            int modelRow = findRowByProgramCode(originalCode);
+            if (modelRow != -1) {
+                model.setValueAt(newCode, modelRow, 0);
+                model.setValueAt(newName, modelRow, 1);
+                model.setValueAt(newCollegeCode, modelRow, 2);
+                
+                updateProgramCSVFile(modelRow, newRecord);
+            } else {
+                JOptionPane.showMessageDialog(editDialog, "Record not found in the table.");
+            }
+            editDialog.dispose();
+        });
+        
+        editDialog.setVisible(true);
+    }
     
     // Find a row in the program table model by comparing the Program Code (column 0)
     private int findRowByProgramCode(String code) {
@@ -141,7 +167,7 @@ public class modifyprogram {
     private void updateProgramCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         
-        // Step 1: Read all CSV rows into a list using PROGRAM_FILE_PATH
+        // Read all CSV rows into a list using PROGRAM_FILE_PATH
         try (BufferedReader br = new BufferedReader(new FileReader(PROGRAM_FILE_PATH))) {
             String line;
             while ((line = br.readLine()) != null) {

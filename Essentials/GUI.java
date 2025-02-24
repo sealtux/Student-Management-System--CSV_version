@@ -12,32 +12,31 @@ import Essentials.removeEvents.*;
 import java.util.Arrays;
 
 public class GUI extends JFrame implements ActionListener {
+
     private JButton searchbutton, studbuttons, addStudentButton, probgButton, collegebutton, addprog, addcollege;
     private JButton delete, deleteprog, deletecollege;
-    private JButton modifystudent,modifyprogram,modifycollege;
+    private JButton modifystudent, modifyprogram, modifycollege;
     private JTextField searchbar;
     private DefaultTableModel model, programmodel, collegemodel;
     private JTable table, programTable, collegetable;
     private TableRowSorter<DefaultTableModel> sorter, progsorter, collsorter;
     private create writer; // File handler object
-    delete deleter;
-    JScrollPane tableScrollPane, progpane, collegepane;
-    JFrame menu, collegeadd;
+    private delete deleter;
+    private JScrollPane tableScrollPane, progpane, collegepane;
+    private JFrame menu;
     // jComboBox for sorting
     private JComboBox<String> comboBox;
     // sorters
     private JComboBox<String> progsortcombo, collsortcombo;
-    addstudentGUI classstudent;
-    addcollegeGUI classcollege;
-    addprogGUI classprogram;
-    removestud deletestudent;
-    removecollege deletecoll;
-    removeprogram deleteprogram;
-     modifystudentGUI modifystud;
-     modifyprogram modifyprog;
-    
-    // CSV file path constant – change this to your actual file location.
-    
+    private addstudentGUI classstudent;
+    private addcollegeGUI classcollege;
+    private addprogGUI classprogram;
+    private removestud deletestudent;
+    private removecollege deletecoll;
+    private removeprogram deleteprogram;
+    private modifystudentGUI modifystud;
+    private modifyprogram modifyprog;
+    private modifycollege modifycoll;
 
     public GUI() {
         // Initialize file handler and deleter
@@ -67,8 +66,9 @@ public class GUI extends JFrame implements ActionListener {
         // College table
         String[] collheader = {"Sort by:", "Sort by College Code", "Sort by College Name"};
         collsortcombo = new JComboBox<>(collheader);
+        // (Assuming AutoCompletion works correctly)
         AutoCompletion.enable(collsortcombo);
-        collsortcombo.setBounds(625, 220, 150, 30);
+        collsortcombo.setBounds(570, 45, 100, 30);
         
         String[] coll = {"College Code", "College Name"};
         collegemodel = new DefaultTableModel(coll, 0);
@@ -80,43 +80,47 @@ public class GUI extends JFrame implements ActionListener {
         String[] options = {"Sort by:", "Sort by ID", "Sort by First Name", "Sort by Last Name", "Sort by Year Level", "Sort by Gender", "Sort by Program Code"};
         comboBox = new JComboBox<>(options);
         AutoCompletion.enable(comboBox);
-        comboBox.setBounds(625, 220, 150, 30);
+        comboBox.setBounds(570, 45, 100, 30);
 
         // jComboBox for sorting program table
         String[] progcombo = {"Sort by:", "Sort by Program Code", "Sort by Program Name", "Sort by College Code"};
         progsortcombo = new JComboBox<>(progcombo);
         AutoCompletion.enable(progsortcombo);
-        progsortcombo.setBounds(625, 220, 150, 30);
+        progsortcombo.setBounds(570, 45, 100, 30);
 
         // Add tables to scroll panes
         progpane = new JScrollPane(programTable);
-        progpane.setBounds(25, 231, 585, 230);
+        progpane.setBounds(25, 87, 585, 230);
         progpane.setVisible(false);
         
         collegepane = new JScrollPane(collegetable);
-        collegepane.setBounds(25, 231, 585, 230);
+        collegepane.setBounds(25, 87, 585, 230);
         collegepane.setVisible(false);
         
         tableScrollPane = new JScrollPane(table);
-        tableScrollPane.setBounds(25, 231, 585, 230);
+        tableScrollPane.setBounds(25, 87, 585, 230);
 
         // Load data
         new loadprogram(this, writer);
         new loadstudent(this, writer);
         new loadcollege(this, writer);
 
-
-        // JFrame setup
+        // Create main window 'menu'
         menu = new JFrame();
-        menu.setBounds(400, 150, 800, 505);
+        // Disable native decorations and use plain dialog style on menu
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        menu.setUndecorated(true);
+        menu.getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
+
+        menu.setBounds(400, 150, 690, 375);
         menu.setLayout(null);
         menu.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Search bar and search button
         searchbar = new JTextField();
-        searchbar.setBounds(474, 110, 100, 30);
+        searchbar.setBounds(500, 30, 100, 30);
         searchbutton = new JButton();
-        searchbutton.setBounds(575, 109, 45, 30);
+        searchbutton.setBounds(580, 30, 30, 30);
         searchbar.addKeyListener(new KeyAdapter() {
             public void keyReleased(KeyEvent e) {
                 filtertable();
@@ -127,52 +131,61 @@ public class GUI extends JFrame implements ActionListener {
 
         // Create other buttons
         studbuttons = new JButton("STUDENTS");
-        studbuttons.setBounds(30, 180, 80, 24);
+        studbuttons.setBounds(30, 50, 80, 24);
         studbuttons.setFont(new Font("Tahoma", Font.BOLD, 9));
 
         probgButton = new JButton("PROGRAM");
-        probgButton.setBounds(120, 180, 80, 24);
+        probgButton.setBounds(120, 50, 80, 24);
         probgButton.setFont(new Font("Tahoma", Font.BOLD, 9));
-
+    
         collegebutton = new JButton("COLLEGE");
-        collegebutton.setBounds(210, 180, 80, 24);
+        collegebutton.setBounds(210, 50, 80, 24);
         collegebutton.setFont(new Font("Tahoma", Font.BOLD, 9));
-
+       
         addStudentButton = new JButton("Add Student");
-        addStudentButton.setBounds(28, 110, 90, 30);
+        addStudentButton.setBounds(300, 80, 80, 24);
         addStudentButton.setFont(new Font("Tahoma", Font.BOLD, 8));
-
+        addStudentButton.setVisible(true);
+        
         addprog = new JButton("Add program");
-        addprog.setBounds(128, 80, 90, 30);
-        addprog.setFont(new Font("Tahoma", Font.BOLD, 8));
-
+        addprog.setBounds(300, 50, 80, 24);
+        addprog.setFont(new Font("Tahoma", Font.BOLD, 6));
+        addprog.setVisible(false);
+        
         addcollege = new JButton("Add college");
-        addcollege.setBounds(228, 80, 90, 30);
+        addcollege.setBounds(300, 50, 80, 24);
         addcollege.setFont(new Font("Tahoma", Font.BOLD, 8));
+        addcollege.setVisible(false);
 
         delete = new JButton("Delete Student");
-        delete.setBounds(328, 80, 90, 30);
+        delete.setBounds(390, 50, 80, 24);
         delete.setFont(new Font("Tahoma", Font.BOLD, 6));
+        delete.setVisible(true);
 
         deleteprog = new JButton("Delete Program");
-        deleteprog.setBounds(28, 120, 90, 30);
+        deleteprog.setBounds(390, 50, 80, 24);
         deleteprog.setFont(new Font("Tahoma", Font.BOLD, 6));
+        deleteprog.setVisible(false);
 
         deletecollege = new JButton("Delete College");
-        deletecollege.setBounds(128, 120, 90, 30);
+        deletecollege.setBounds(390, 50, 80, 24);
         deletecollege.setFont(new Font("Tahoma", Font.BOLD, 6));
+        deletecollege.setVisible(false);
 
         modifystudent = new JButton("Modify Student");
-        modifystudent.setBounds(228, 120, 90, 30);
+        modifystudent.setBounds(480, 50, 80, 24);
         modifystudent.setFont(new Font("Tahoma", Font.BOLD, 6));
+        modifystudent.setVisible(true);
 
         modifyprogram = new JButton("Modify Program");
-        modifyprogram.setBounds(328, 120, 90, 30);
+        modifyprogram.setBounds(480, 50, 80, 24);
         modifyprogram.setFont(new Font("Tahoma", Font.BOLD, 6));
+        modifyprogram.setVisible(false);
 
         modifycollege = new JButton("Modify College");
-        modifycollege.setBounds(428, 120, 90, 30);
+        modifycollege.setBounds(480, 50, 80, 24);
         modifycollege.setFont(new Font("Tahoma", Font.BOLD, 6));
+        modifycollege.setVisible(false);
 
         // Set table row heights
         table.setRowHeight(25);
@@ -213,10 +226,9 @@ public class GUI extends JFrame implements ActionListener {
         addprog.addActionListener(this);
         addcollege.addActionListener(this);
         delete.addActionListener(this);
-        
+        modifystudent.addActionListener(this);
         deleteprog.addActionListener(this);
         deletecollege.addActionListener(this);
-        modifystudent.addActionListener(this);
         modifyprogram.addActionListener(this);
         modifycollege.addActionListener(this);
 
@@ -238,6 +250,9 @@ public class GUI extends JFrame implements ActionListener {
         if(e.getSource() == modifyprogram){
             modifyprog = new modifyprogram(this);
         }
+        if(e.getSource() == modifycollege){
+            modifycoll = new modifycollege(this);
+        }
         if (e.getSource() == searchbutton) {
             filtertable();
         }
@@ -249,6 +264,19 @@ public class GUI extends JFrame implements ActionListener {
             searchbar.setText("");
             progsortcombo.setVisible(false);
             collsortcombo.setVisible(false);
+
+    
+            addStudentButton.setVisible(true);
+            addprog.setVisible(false);
+            addcollege.setVisible(false);
+           
+            delete.setVisible(true); // student
+            deleteprog.setVisible(false); //prog
+           deletecollege.setVisible(false); // college
+           
+             modifystudent.setVisible(true);//student
+            modifyprogram.setVisible(false);//program
+           modifycollege.setVisible(false);//college
         }
         if (e.getSource() == probgButton) {
             tableScrollPane.setVisible(false);
@@ -258,6 +286,18 @@ public class GUI extends JFrame implements ActionListener {
             progsortcombo.setVisible(true);
             searchbar.setText("");
             collsortcombo.setVisible(false);
+
+            addStudentButton.setVisible(false);
+            addprog.setVisible(true);
+            addcollege.setVisible(false);
+           
+            delete.setVisible(false); // student
+            deleteprog.setVisible(true); //prog
+           deletecollege.setVisible(false); // college
+           
+             modifystudent.setVisible(false);//student
+            modifyprogram.setVisible(true);//program
+           modifycollege.setVisible(false);//college
         }
         if (e.getSource() == collegebutton) {
             comboBox.setVisible(false);
@@ -267,6 +307,18 @@ public class GUI extends JFrame implements ActionListener {
             progsortcombo.setVisible(false);
             searchbar.setText("");
             collsortcombo.setVisible(true);
+
+            addStudentButton.setVisible(false);
+            addprog.setVisible(false);
+            addcollege.setVisible(true);
+           
+            delete.setVisible(false); // student
+            deleteprog.setVisible(false); //prog
+           deletecollege.setVisible(true); // college
+           
+             modifystudent.setVisible(false);//student
+            modifyprogram.setVisible(false);//program
+           modifycollege.setVisible(true);//college
         }
         if (e.getSource() == progsortcombo) {
             String selectedprog = (String) progsortcombo.getSelectedItem();
@@ -298,13 +350,13 @@ public class GUI extends JFrame implements ActionListener {
                     sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(2, SortOrder.ASCENDING)));
                     break;
                 case "Sort by Year Level":
-                    sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(4, SortOrder.ASCENDING)));
+                    sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(3, SortOrder.ASCENDING)));
                     break;
                 case "Sort by Gender":
-                    sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(5, SortOrder.ASCENDING)));
+                    sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(4, SortOrder.ASCENDING)));
                     break;
                 case "Sort by Program Code":
-                    sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(6, SortOrder.ASCENDING)));
+                    sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(5, SortOrder.ASCENDING)));
                     break;
                 case "Sort by:":
                     sorter.setSortKeys(null);
@@ -343,7 +395,6 @@ public class GUI extends JFrame implements ActionListener {
         if (e.getSource() == deletecollege) {
             deletecoll = new removecollege(this, deleter);
         }
-      
     }
 
     public DefaultTableModel getstudentModel() {
@@ -385,6 +436,4 @@ public class GUI extends JFrame implements ActionListener {
             collsorter.setRowFilter(RowFilter.regexFilter("(?i)" + query));
         }
     }
-
-    
 }

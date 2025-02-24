@@ -1,4 +1,5 @@
 package Essentials.modifiedEvents;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.io.*;
@@ -7,63 +8,74 @@ import java.util.ArrayList;
 import Essentials.GUI;
 
 public class modifystudentGUI {
-    
+
     public static final String FILE_PATH = "C:\\Users\\Admin\\Desktop\\ccc151\\students.csv";
     
     private GUI maingui;
-    private DefaultTableModel model;  // this comes from maingui
+    private DefaultTableModel model;  // Table model for students
 
     // Constructor: receives the main GUI instance and stores its student model
     public modifystudentGUI(GUI gui) {
         this.maingui = gui;
         this.model = maingui.getstudentModel();
         
-        // Create a simple modify dialog that prompts for an ID
+        // Create a modal dialog that prompts for an ID
+        JDialog modifyDialog = new JDialog((java.awt.Frame) null, "Modify Student", true);
+        modifyDialog.setLayout(null);
+        modifyDialog.setSize(300, 180);
+        modifyDialog.setLocationRelativeTo(null);
+        modifyDialog.setResizable(false);
+        
         JTextField checkerField = new JTextField();
         JLabel IDchecker = new JLabel("Enter ID:");
         JButton IDcheckerSubmit = new JButton("MODIFY");
-        JFrame modify = new JFrame("Modify student");
-        modify.setLayout(null);
-        modify.setSize(300, 180);
+        
         IDchecker.setBounds(30, 30, 180, 25);
         checkerField.setBounds(85, 30, 80, 25);
         IDcheckerSubmit.setBounds(85, 80, 130, 25);
-        modify.add(IDchecker);
-        modify.add(checkerField);
-        modify.add(IDcheckerSubmit);
-        modify.setVisible(true);
         
+        modifyDialog.add(IDchecker);
+        modifyDialog.add(checkerField);
+        modifyDialog.add(IDcheckerSubmit);
+        
+        // Add action listener BEFORE showing the dialog
         IDcheckerSubmit.addActionListener(e -> {
             String enteredId = checkerField.getText().trim();
             if (enteredId.isEmpty()) {
-                JOptionPane.showMessageDialog(modify, "Please enter an ID.");
+                JOptionPane.showMessageDialog(modifyDialog, "Please enter an ID.");
                 return;
             }
-            // Search for the record in the CSV file (including header, so skip header row)
+            // Search for the record in the CSV file (skipping header in the table)
             String[] record = searchCSVForRecordById(enteredId);
             if (record == null) {
-                JOptionPane.showMessageDialog(modify, "Record with ID " + enteredId + " not found.");
+                JOptionPane.showMessageDialog(modifyDialog, "Record with ID " + enteredId + " not found.");
             } else {
                 // Open the edit form with the record data
-                Modifiedframe(record);
+                modifiedFrame(record);
             }
-            modify.dispose();
+            modifyDialog.dispose();
         });
+        
+        modifyDialog.setVisible(true);
     }
     
-    // Opens an edit form pre-populated with the record's data.
+    // Opens an edit form pre-populated with the student's data.
     // Allows the user to change the ID as well.
-    private void Modifiedframe(String[] record) {
+    private void modifiedFrame(String[] record) {
         // Store the original ID for lookup
         final String originalId = record[0];
         
-        JFrame editFrame = new JFrame("Edit Student");
-        editFrame.setSize(350, 350);
-        editFrame.setLayout(null);
-        editFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        // Create a modal edit dialog
+        JDialog editDialog = new JDialog((java.awt.Frame) null, "Edit Student", true);
+        editDialog.setSize(350, 350);
+        editDialog.setLayout(null);
+        editDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        editDialog.setLocationRelativeTo(null);
+        editDialog.setResizable(false);
         
+        // Create labels and text fields
         JLabel idLabel = new JLabel("ID:");
-        JTextField idField = new JTextField(record[0]);  // editable so user can change it
+        JTextField idField = new JTextField(record[0]);  // Editable so user can change it
         JLabel firstNameLabel = new JLabel("First Name:");
         JTextField firstNameField = new JTextField(record[1]);
         JLabel lastNameLabel = new JLabel("Last Name:");
@@ -92,23 +104,22 @@ public class modifystudentGUI {
         JButton updateButton = new JButton("Update");
         updateButton.setBounds(130, 260, 100, 30);
         
-        // Add components to the frame
-        editFrame.add(idLabel);
-        editFrame.add(idField);
-        editFrame.add(firstNameLabel);
-        editFrame.add(firstNameField);
-        editFrame.add(lastNameLabel);
-        editFrame.add(lastNameField);
-        editFrame.add(yearLevelLabel);
-        editFrame.add(yearLevelField);
-        editFrame.add(genderLabel);
-        editFrame.add(genderField);
-        editFrame.add(programCodeLabel);
-        editFrame.add(programCodeField);
-        editFrame.add(updateButton);
+        // Add components to the edit dialog
+        editDialog.add(idLabel);
+        editDialog.add(idField);
+        editDialog.add(firstNameLabel);
+        editDialog.add(firstNameField);
+        editDialog.add(lastNameLabel);
+        editDialog.add(lastNameField);
+        editDialog.add(yearLevelLabel);
+        editDialog.add(yearLevelField);
+        editDialog.add(genderLabel);
+        editDialog.add(genderField);
+        editDialog.add(programCodeLabel);
+        editDialog.add(programCodeField);
+        editDialog.add(updateButton);
         
-        editFrame.setVisible(true);
-        
+        // Add ActionListener for the update button BEFORE showing the dialog
         updateButton.addActionListener(ae -> {
             // Get new values from fields (ID may be modified)
             String newId = idField.getText().trim();
@@ -118,13 +129,31 @@ public class modifystudentGUI {
             String newGender = genderField.getText().trim();
             String newProgramCode = programCodeField.getText().trim();
             
+            // Validate that none of the fields are empty
+            if (newId.isEmpty() || newFirstName.isEmpty() || newLastName.isEmpty() ||
+                newYearLevel.isEmpty() || newGender.isEmpty() || newProgramCode.isEmpty()) {
+                JOptionPane.showMessageDialog(editDialog, "All fields must be filled.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Check for duplicate: if the new ID is different from the original,
+            // ensure that it does not already exist in the table.
+            if (!newId.equals(originalId)) {
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    String existingId = model.getValueAt(i, 0).toString().trim();
+                    if (existingId.equals(newId)) {
+                        JOptionPane.showMessageDialog(editDialog, "A record with this ID already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
+            
             // Prepare the updated record array
             String[] newRecord = { newId, newFirstName, newLastName, newYearLevel, newGender, newProgramCode };
             
             // Find the table model row corresponding to the original ID
             int modelRow = findRowById(originalId);
             if (modelRow != -1) {
-                // Update the table model with new values (including new ID)
                 model.setValueAt(newId, modelRow, 0);
                 model.setValueAt(newFirstName, modelRow, 1);
                 model.setValueAt(newLastName, modelRow, 2);
@@ -132,14 +161,16 @@ public class modifystudentGUI {
                 model.setValueAt(newGender, modelRow, 4);
                 model.setValueAt(newProgramCode, modelRow, 5);
                 
-                // Also update the CSV file for this row
                 updateCSVFile(modelRow, newRecord);
             } else {
-                JOptionPane.showMessageDialog(editFrame, "Record not found in the table.");
+                JOptionPane.showMessageDialog(editDialog, "Record not found in the table.");
             }
-            editFrame.dispose();
+            editDialog.dispose();
         });
-    }
+        
+        // Now show the edit dialog
+        editDialog.setVisible(true);
+    };
     
     // Find a row in the table model by comparing the ID column.
     private int findRowById(String id) {
@@ -166,21 +197,14 @@ public class modifystudentGUI {
             ex.printStackTrace();
         }
         
-        // Debug: Print CSV data before update
-       
-        
         // The table model does not include the header, so the corresponding CSV row is modelRow + 1.
         int csvRowIndex = modelRow + 1;
         if (csvRowIndex >= 1 && csvRowIndex < csvData.size()) {
             csvData.set(csvRowIndex, newRecord);
         } else {
-        
+            System.out.println("Error: CSV row index " + csvRowIndex + " out of bounds. CSV rows: " + csvData.size());
             return;
         }
-        
-        // Debug: Print CSV data after update
-       
-   
         
         // Step 3: Write the updated list back to the CSV file using FILE_PATH
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
@@ -192,7 +216,7 @@ public class modifystudentGUI {
             ex.printStackTrace();
         }
         
-      
+        System.out.println("CSV file updated successfully.");
     }
     
     // Search CSV file for a record by ID (skips header automatically by checking all rows)

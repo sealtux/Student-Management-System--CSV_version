@@ -1,16 +1,13 @@
 package Essentials.addEvents;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
-import Essentials.AutoCompletion;
 import Essentials.GUI;
 import Essentials.create;
+import java.awt.Frame;
+import Essentials.AutoCompletion;
+import java.util.HashMap;
+import java.util.Map;
 
 public class addcollegeGUI {
     private GUI mainGUI;
@@ -18,18 +15,19 @@ public class addcollegeGUI {
     public addcollegeGUI(GUI mainGUI, create writer) {
         this.mainGUI = mainGUI;  // Store main GUI reference
 
-        JFrame addcollegeframe = new JFrame("Add College");
+        // Create a modal JDialog for "Add College"
+        JDialog addCollegeDialog = new JDialog((Frame) null, "Add College", true);
+        addCollegeDialog.setSize(350, 200);
+        addCollegeDialog.setLayout(null);
+        addCollegeDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
         JButton submit = new JButton("Submit");
-
         submit.setBounds(110, 120, 130, 25);
-
-        addcollegeframe.setSize(350, 200);
-        addcollegeframe.setLayout(null);
 
         JLabel collegecode = new JLabel("College Code:");
         String[] collegeoptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
         JComboBox<String> collegecombo = new JComboBox<>(collegeoptions);
-        AutoCompletion.enable(collegecombo);
+        AutoCompletion.enable(collegecombo);  // Ensure AutoCompletion exists and is imported
         collegecode.setBounds(20, 20, 100, 25);
         collegecombo.setBounds(110, 20, 180, 25);
 
@@ -45,15 +43,13 @@ public class addcollegeGUI {
         collegename.setBounds(20, 70, 100, 25);
         collegenamecombo.setBounds(110, 70, 180, 25);
 
-        addcollegeframe.add(collegecode);
-        addcollegeframe.add(collegename);
-        addcollegeframe.add(collegecombo);
-        addcollegeframe.add(collegenamecombo);
-        addcollegeframe.add(submit);
+        addCollegeDialog.add(collegecode);
+        addCollegeDialog.add(collegename);
+        addCollegeDialog.add(collegecombo);
+        addCollegeDialog.add(collegenamecombo);
+        addCollegeDialog.add(submit);
 
-        addcollegeframe.setVisible(true);
-
-        // **Mapping College Codes to College Names**
+        // Mapping College Codes to College Names
         Map<String, String> collegeMap = new HashMap<>();
         collegeMap.put("CCS", "College of Computer Studies");
         collegeMap.put("CEBA", "College of Economics and Business Administration");
@@ -63,39 +59,55 @@ public class addcollegeGUI {
         collegeMap.put("CASS", "College of Arts and Social Sciences");
         collegeMap.put("CED", "College of Education");
 
-        // **Action Listener to Auto-Update College Name**
-        collegecombo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedCode = (String) collegecombo.getSelectedItem();
-                if (collegeMap.containsKey(selectedCode)) {
-                    collegenamecombo.setSelectedItem(collegeMap.get(selectedCode));
-                } else {
-                    collegenamecombo.setSelectedItem("");
-                }
+        // Auto-update College Name when code is selected
+        collegecombo.addActionListener(e -> {
+            String selectedCode = (String) collegecombo.getSelectedItem();
+            if (collegeMap.containsKey(selectedCode)) {
+                collegenamecombo.setSelectedItem(collegeMap.get(selectedCode));
+            } else {
+                collegenamecombo.setSelectedItem("");
             }
         });
 
+        // Add action listener for the submit button BEFORE showing the dialog
         submit.addActionListener(e -> {
             String collegeco = (String) collegecombo.getSelectedItem();
             String collegena = (String) collegenamecombo.getSelectedItem();
 
             if (collegeco.isEmpty() || collegena.isEmpty()) {
-                JOptionPane.showMessageDialog(addcollegeframe, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(addCollegeDialog, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // **Save the selected values**
-            writer.college(collegeco, collegena);
-
-            if (mainGUI != null) {
-                DefaultTableModel collegemodel = mainGUI.getcollegeModel();
-                collegemodel.addRow(new Object[]{collegeco, collegena});
-            } else {
-                System.out.println("Error: mainGUI is null!");
+            // Check if record already exists in the table
+            DefaultTableModel model = mainGUI.getcollegeModel();
+            boolean exists = false;
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0).toString().trim().equals(collegeco)) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) {
+                JOptionPane.showMessageDialog(addCollegeDialog, "Record with College Code " + collegeco + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                addCollegeDialog.dispose();
+                return;
             }
 
-            addcollegeframe.dispose();
+            // Save to CSV using writer's method
+            writer.college(collegeco, collegena);
+
+            // Add to the table model if mainGUI is not null
+            if (mainGUI != null) {
+                model.addRow(new Object[]{collegeco, collegena});
+            } 
+
+            addCollegeDialog.dispose();
         });
+
+        // Center the dialog, prevent resizing, then show the dialog
+        addCollegeDialog.setLocationRelativeTo(null);
+        addCollegeDialog.setResizable(false);
+        addCollegeDialog.setVisible(true);
     }
 }
