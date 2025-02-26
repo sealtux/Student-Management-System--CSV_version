@@ -119,6 +119,21 @@ public class addstudentGUI {
                     }
                 }
 
+                // Check that the program code exists in the program table.
+                DefaultTableModel programModel = mainGUI.getprogramModel();
+                boolean programExists = false;
+                for (int i = 0; i < programModel.getRowCount(); i++) {
+                    String existingProgram = programModel.getValueAt(i, 0).toString().trim();
+                    if (existingProgram.equals(programCode)) {
+                        programExists = true;
+                        break;
+                    }
+                }
+                if (!programExists) {
+                    JOptionPane.showMessageDialog(addStudentDialog, "Invalid Program Code! Please enter a program code that exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 // If all checks pass, add student to table model
                 tableModel.addRow(new Object[]{id, firstName, lastName, yearLevel, selectedGender, programCode});
 

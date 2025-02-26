@@ -25,13 +25,15 @@ public class addcollegeGUI {
         submit.setBounds(110, 120, 130, 25);
 
         JLabel collegecode = new JLabel("College Code:");
+        JLabel collegename = new JLabel("College Name:");
+        collegecode.setBounds(20, 20, 100, 25);
+        collegename.setBounds(20, 70, 100, 25);
+
         String[] collegeoptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
         JComboBox<String> collegecombo = new JComboBox<>(collegeoptions);
-        AutoCompletion.enable(collegecombo);  // Ensure AutoCompletion exists and is imported
-        collegecode.setBounds(20, 20, 100, 25);
         collegecombo.setBounds(110, 20, 180, 25);
+        AutoCompletion.enable(collegecombo);  // Enable auto-completion
 
-        JLabel collegename = new JLabel("College Name:");
         String[] collegenameoptions = {
             "", "College of Computer Studies", "College of Economics and Business Administration",
             "College of Health Sciences", "College of Engineering",
@@ -39,9 +41,8 @@ public class addcollegeGUI {
             "College of Education"
         };
         JComboBox<String> collegenamecombo = new JComboBox<>(collegenameoptions);
-        AutoCompletion.enable(collegenamecombo);
-        collegename.setBounds(20, 70, 100, 25);
         collegenamecombo.setBounds(110, 70, 180, 25);
+        AutoCompletion.enable(collegenamecombo);
 
         addCollegeDialog.add(collegecode);
         addCollegeDialog.add(collegename);
@@ -59,17 +60,24 @@ public class addcollegeGUI {
         collegeMap.put("CASS", "College of Arts and Social Sciences");
         collegeMap.put("CED", "College of Education");
 
-        // Auto-update College Name when code is selected
+        // Auto-update College Name when College Code is selected
         collegecombo.addActionListener(e -> {
             String selectedCode = (String) collegecombo.getSelectedItem();
-            if (collegeMap.containsKey(selectedCode)) {
-                collegenamecombo.setSelectedItem(collegeMap.get(selectedCode));
-            } else {
-                collegenamecombo.setSelectedItem("");
-            }
+            collegenamecombo.setSelectedItem(collegeMap.getOrDefault(selectedCode, ""));
         });
 
-        // Add action listener for the submit button BEFORE showing the dialog
+        // Auto-update College Code when College Name is selected
+        collegenamecombo.addActionListener(e -> {
+            String selectedName = (String) collegenamecombo.getSelectedItem();
+            String matchedCode = collegeMap.entrySet().stream()
+                    .filter(entry -> entry.getValue().equals(selectedName))
+                    .map(Map.Entry::getKey)
+                    .findFirst()
+                    .orElse("");
+            collegecombo.setSelectedItem(matchedCode);
+        });
+
+        // Submit button logic
         submit.addActionListener(e -> {
             String collegeco = (String) collegecombo.getSelectedItem();
             String collegena = (String) collegenamecombo.getSelectedItem();

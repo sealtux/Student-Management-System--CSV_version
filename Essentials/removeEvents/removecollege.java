@@ -48,4 +48,4 @@ public class removecollege {
         // Finally, show the dialog
         deleteDialog.setVisible(true);
     }
-}
+}  
