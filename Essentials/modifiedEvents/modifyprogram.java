@@ -59,7 +59,7 @@ public class modifyprogram {
         modifyDialog.setVisible(true);
     }
     
-    // Opens an edit form pre-populated with the program's data.
+ 
     // Allows the user to change the Program Code.
     private void modifiedFrame(String[] record) {
         // Store the original program code for lookup
@@ -135,7 +135,7 @@ public class modifyprogram {
             // Prepare the updated record array
             String[] newRecord = { newCode, newName, newCollegeCode };
             
-            // Find the table model row corresponding to the original program code
+           
             int modelRow = findRowByProgramCode(originalCode);
             if (modelRow != -1) {
                 model.setValueAt(newCode, modelRow, 0);
@@ -152,7 +152,7 @@ public class modifyprogram {
         editDialog.setVisible(true);
     }
     
-    // Find a row in the program table model by comparing the Program Code (column 0)
+
     private int findRowByProgramCode(String code) {
         for (int i = 0; i < model.getRowCount(); i++) {
             if (model.getValueAt(i, 0).toString().trim().equals(code)) {
@@ -162,8 +162,7 @@ public class modifyprogram {
         return -1;
     }
     
-    // Update the program CSV file; assume the first row is a header.
-    // When updating, the CSV row corresponding to the table model row is modelRow + 1.
+   
     private void updateProgramCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         
@@ -178,7 +177,7 @@ public class modifyprogram {
             ex.printStackTrace();
         }
         
-        // The table model does not include the header, so the corresponding CSV row is modelRow + 1.
+
         int csvRowIndex = modelRow + 1;
         if (csvRowIndex >= 1 && csvRowIndex < csvData.size()) {
             csvData.set(csvRowIndex, newRecord);

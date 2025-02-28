@@ -49,23 +49,21 @@ public class modifycollege {
                 JOptionPane.showMessageDialog(modifyDialog, "Please enter a College Code.");
                 return;
             }
-            // Search for the record in the CSV file for colleges
             String[] record = searchCSVForCollegeByCode(enteredCode);
             if (record == null) {
                 JOptionPane.showMessageDialog(modifyDialog, "Record with College Code " + enteredCode + " not found.");
             } else {
-                // Open the edit form with the record data
+            
                 modifiedFrame(record);
             }
             modifyDialog.dispose();
         });
         
-        // Now show the dialog
+     
         modifyDialog.setVisible(true);
     }
     
-    // Opens an edit form pre-populated with the college's data.
-    // Allows the user to change the College Code and College Name via JComboBoxes.
+
     private void modifiedFrame(String[] record) {
         // Store the original college code for lookup
         final String originalCode = record[0];
@@ -115,14 +113,12 @@ public class modifycollege {
         
         // Add action listener BEFORE making dialog visible
         updateButton.addActionListener(ae -> {
-            // Get new values from the combo boxes
             String newCode = codeCombo.getSelectedItem().toString().trim();
             String newName = nameCombo.getSelectedItem().toString().trim();
             
-            // Prepare the updated record array for the college
+         
             String[] newRecord = { newCode, newName };
             
-            // Find the table model row corresponding to the original college code
             int modelRow = findRowByCollegeCode(originalCode);
             if (modelRow != -1) {
                 model.setValueAt(newCode, modelRow, 0);
@@ -137,11 +133,10 @@ public class modifycollege {
         
         editDialog.setLocationRelativeTo(null);
         editDialog.setResizable(false);
-        // Now show the edit dialog
+        
         editDialog.setVisible(true);
     }
     
-    // Find a row in the college table model by comparing the College Code (assumed to be column 0)
     private int findRowByCollegeCode(String code) {
         for (int i = 0; i < model.getRowCount(); i++) {
             if (model.getValueAt(i, 0).toString().trim().equals(code)) {
@@ -151,8 +146,7 @@ public class modifycollege {
         return -1;
     }
     
-    // Update the college CSV file; assume the first row is a header.
-    // When updating, the CSV row corresponding to the table model row is modelRow + 1.
+   
     private void updateCollegeCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         

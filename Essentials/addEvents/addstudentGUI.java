@@ -4,16 +4,14 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import Essentials.GUI;
 import Essentials.create;
-import java.awt.Frame;
 
 public class addstudentGUI {
     private GUI mainGUI;  
     public static final String FILE_PATH = "C:\\Users\\Admin\\Desktop\\ccc151\\students.csv";
 
     public addstudentGUI(GUI gui, create writer) {
-        this.mainGUI = gui;  // Initialize GUI reference
+        this.mainGUI = gui;  
 
-        // Create a modal JDialog for "Add Student" form
         JDialog addStudentDialog = new JDialog();
         addStudentDialog.setTitle("Add Student");
         addStudentDialog.setModal(true);
@@ -21,7 +19,6 @@ public class addstudentGUI {
         addStudentDialog.setLayout(null);
         addStudentDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        // Create input fields and labels
         JLabel idLabel = new JLabel("ID:");
         JTextField idField = new JTextField();
         JLabel firstNameLabel = new JLabel("First Name:");
@@ -35,17 +32,14 @@ public class addstudentGUI {
         String[] genderOptions = {"", "M", "F"};
         JComboBox<String> genderCombo = new JComboBox<>(genderOptions);
         JLabel programCodeLabel = new JLabel("Program Code:");
-        
-        // Fetch program codes from the program table and add a blank as the default option
+
         DefaultTableModel programModel = mainGUI.getprogramModel();
         JComboBox<String> programCodeCombo = new JComboBox<>();
-        programCodeCombo.addItem(""); // Default blank option
+        programCodeCombo.addItem(""); 
         for (int i = 0; i < programModel.getRowCount(); i++) {
-            String existingProgram = programModel.getValueAt(i, 0).toString().trim();
-            programCodeCombo.addItem(existingProgram);
+            programCodeCombo.addItem(programModel.getValueAt(i, 0).toString().trim());
         }
 
-        // Set bounds for UI elements
         idLabel.setBounds(20, 20, 65, 25);
         idField.setBounds(90, 20, 200, 25);
         firstNameLabel.setBounds(20, 60, 65, 25);
@@ -59,11 +53,9 @@ public class addstudentGUI {
         programCodeLabel.setBounds(20, 220, 100, 25);
         programCodeCombo.setBounds(120, 220, 170, 25);
 
-        // Submit button
         JButton submitButton = new JButton("Add Student");
         submitButton.setBounds(110, 260, 130, 30);
 
-        // Add components to the dialog
         addStudentDialog.add(idLabel);
         addStudentDialog.add(idField);
         addStudentDialog.add(firstNameLabel);
@@ -78,11 +70,9 @@ public class addstudentGUI {
         addStudentDialog.add(programCodeCombo);
         addStudentDialog.add(submitButton);
 
-        // Center the dialog, prevent resizing, and then show it
         addStudentDialog.setLocationRelativeTo(null);
         addStudentDialog.setResizable(false);
 
-        // Add action listener for the submit button BEFORE showing the dialog
         submitButton.addActionListener(e -> {
             try {
                 String id = idField.getText().trim();
@@ -92,16 +82,39 @@ public class addstudentGUI {
                 String selectedGender = (String) genderCombo.getSelectedItem();
                 String programCode = (String) programCodeCombo.getSelectedItem();
 
-                // Validate input: All fields must be filled
+                // Validate ID format (YYYY-NNNN)
+                if (!id.matches("\\d{4}-\\d{4}")) {
+                    JOptionPane.showMessageDialog(addStudentDialog, "Invalid ID format! Use YYYY-NNNN.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Validate year (greater than 2000) and ensure NNNN is not 0000
+                String[] parts = id.split("-");
+                int year = Integer.parseInt(parts[0]);
+                if (year <= 2000 || parts[1].equals("0000")) {
+                    JOptionPane.showMessageDialog(addStudentDialog, "Invalid ID! Year must be > 2000 and NNNN cannot be 0000.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Check for duplicate ID in the student table
+                DefaultTableModel studentModel = mainGUI.getstudentModel();
+                for (int i = 0; i < studentModel.getRowCount(); i++) {
+                    if (studentModel.getValueAt(i, 0).toString().equals(id)) {
+                        JOptionPane.showMessageDialog(addStudentDialog, "Student ID already exists!", "Error", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+
                 if (id.isEmpty() || firstName.isEmpty() || lastName.isEmpty() ||
                     yearLevel.isEmpty() || selectedGender.isEmpty() || programCode.isEmpty()) {
                     JOptionPane.showMessageDialog(addStudentDialog, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                // Validation and processing logic here...
+                writer.addStudent(id, firstName, lastName, yearLevel, selectedGender, programCode);
 
-                // Close the dialog after successful entry
+                studentModel.addRow(new Object[]{id, firstName, lastName, yearLevel, selectedGender, programCode});
+
                 addStudentDialog.dispose();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(addStudentDialog, "Error: " + ex.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);

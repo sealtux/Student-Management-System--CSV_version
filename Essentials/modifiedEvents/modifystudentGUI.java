@@ -186,7 +186,7 @@ public class modifystudentGUI {
     private void updateCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         
-        // Step 1: Read all CSV rows into a list using FILE_PATH
+      
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -197,7 +197,7 @@ public class modifystudentGUI {
             ex.printStackTrace();
         }
         
-        // The table model does not include the header, so the corresponding CSV row is modelRow + 1.
+        
         int csvRowIndex = modelRow + 1;
         if (csvRowIndex >= 1 && csvRowIndex < csvData.size()) {
             csvData.set(csvRowIndex, newRecord);
@@ -206,7 +206,7 @@ public class modifystudentGUI {
             return;
         }
         
-        // Step 3: Write the updated list back to the CSV file using FILE_PATH
+       
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(FILE_PATH))) {
             for (String[] row : csvData) {
                 bw.write(String.join(",", row));

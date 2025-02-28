@@ -23,17 +23,17 @@ public class removecollege {
         AutoCompletion.enable(collegedel);
         JButton submit = new JButton("Confirm");
 
-        // Set bounds for components
+     
         deleteLabelcol.setBounds(30, 30, 180, 25);
         collegedel.setBounds(120, 30, 70, 25);
         submit.setBounds(85, 80, 130, 25);
 
-        // Add components to dialog
+    
         deleteDialog.add(deleteLabelcol);
         deleteDialog.add(collegedel);
         deleteDialog.add(submit);
 
-        // Center the dialog and prevent resizing (which removes minimize/maximize)
+        
         deleteDialog.setLocationRelativeTo(null);
         deleteDialog.setResizable(false);
 

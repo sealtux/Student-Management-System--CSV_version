@@ -109,6 +109,7 @@ public class GUI extends JFrame implements ActionListener {
 
         // Create main window 'menu'
         menu = new JFrame();
+        
         // Disable native decorations and use plain dialog style on menu
         JFrame.setDefaultLookAndFeelDecorated(true);
         menu.setUndecorated(true);
