@@ -98,6 +98,7 @@ public class addstudentGUI {
 
                 // Check for duplicate ID in the student table
                 DefaultTableModel studentModel = mainGUI.getstudentModel();
+                
                 for (int i = 0; i < studentModel.getRowCount(); i++) {
                     if (studentModel.getValueAt(i, 0).toString().equals(id)) {
                         JOptionPane.showMessageDialog(addStudentDialog, "Student ID already exists!", "Error", JOptionPane.ERROR_MESSAGE);

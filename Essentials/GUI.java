@@ -260,6 +260,7 @@ public class GUI extends JFrame implements ActionListener {
 
         progsortcombo.setVisible(false);
         collsortcombo.setVisible(false);
+        menu.setResizable(false);
         menu.setVisible(true);
     }
 
@@ -362,6 +363,7 @@ public class GUI extends JFrame implements ActionListener {
                     break;
             }
         }
+        
         if (e.getSource() == comboBox) {
             String selected = (String) comboBox.getSelectedItem();
             switch (selected) {
