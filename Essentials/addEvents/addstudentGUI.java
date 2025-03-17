@@ -82,7 +82,7 @@ public class addstudentGUI {
                 String selectedGender = (String) genderCombo.getSelectedItem();
                 String programCode = (String) programCodeCombo.getSelectedItem();
 
-                // Validate ID format (YYYY-NNNN)
+                
                 if (!id.matches("\\d{4}-\\d{4}")) {
                     JOptionPane.showMessageDialog(addStudentDialog, "Invalid ID format! Use YYYY-NNNN.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;

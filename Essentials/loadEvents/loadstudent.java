@@ -13,7 +13,7 @@ public class loadstudent {
    public loadstudent(GUI gui, create write){
    try (BufferedReader br = new BufferedReader(new FileReader(create.FILE_PATH))) {
             String line;
-            br.readLine(); // Skips the first
+        
             DefaultTableModel model = gui.getstudentModel();
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");

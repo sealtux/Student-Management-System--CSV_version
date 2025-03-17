@@ -40,7 +40,7 @@ public class modifycollege {
         modifyDialog.setLocationRelativeTo(null);
         modifyDialog.setResizable(false);
         
-        // Add action listener BEFORE showing the dialog
+
         collegeCheckerSubmit.addActionListener(e -> {
             String enteredCode = (String) collegeCombo.getSelectedItem();
             if (enteredCode.isEmpty()) {
@@ -63,7 +63,7 @@ public class modifycollege {
     
 
     private void modifiedFrame(String[] record) {
-        // Store the original college code for lookup
+        
         final String originalCode = record[0];
         
         // Create a modal edit dialog
@@ -148,7 +148,7 @@ public class modifycollege {
     private void updateCollegeCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         
-        // Step 1: Read all CSV rows into a list using COLLEGE_FILE
+        
         try (BufferedReader br = new BufferedReader(new FileReader(COLLEGE_FILE))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -159,7 +159,7 @@ public class modifycollege {
             ex.printStackTrace();
         }
         
-        // Determine CSV row index: table model row 0 corresponds to CSV row 1 (header is row 0)
+        
         int csvRowIndex = modelRow + 1;
         if (csvRowIndex >= 1 && csvRowIndex < csvData.size()) {
             csvData.set(csvRowIndex, newRecord);
@@ -168,7 +168,7 @@ public class modifycollege {
             return;
         }
         
-        // Write the updated list back to the CSV file using COLLEGE_FILE
+     
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(COLLEGE_FILE))) {
             for (String[] row : csvData) {
                 bw.write(String.join(",", row));
@@ -181,7 +181,7 @@ public class modifycollege {
         System.out.println("College CSV file updated successfully.");
     }
     
-    // Search the college CSV file for a record by College Code.
+
     private String[] searchCSVForCollegeByCode(String code) {
         try (BufferedReader br = new BufferedReader(new FileReader(COLLEGE_FILE))) {
             String line;

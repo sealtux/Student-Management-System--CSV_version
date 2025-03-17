@@ -13,7 +13,7 @@ public class loadprogram {
     public loadprogram(GUI gui,create writer){
 try(BufferedReader br = new BufferedReader(new FileReader(create.PROGRAM_FILE))){
 String line;
-br.readLine();
+
 DefaultTableModel programmodel = gui.getprogramModel();
 while((line = br.readLine()) !=null){
     String[] data = line.split(",");

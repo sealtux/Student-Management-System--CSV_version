@@ -39,6 +39,7 @@ public class GUI extends JFrame implements ActionListener {
     private modifyprogram modifyprog;
     private modifycollege modifycoll;
 
+    
     public GUI() {
         // Initialize file handler and deleter
         writer = new create();
@@ -139,6 +140,8 @@ public class GUI extends JFrame implements ActionListener {
 
         boarder = new JPanel();
     
+     
+
         boarder.setBounds(15,44,605,350);
         boarder.setBackground(Color.gray);
         
@@ -178,7 +181,7 @@ public class GUI extends JFrame implements ActionListener {
 
         deleteprog = new JButton("Delete Program");
         deleteprog.setBounds(390, 350, 100, 34);
-        deleteprog.setFont(new Font("Tahoma", Font.BOLD, 8));
+        deleteprog.setFont(new Font("Tahoma", Font.BOLD, 8));   
         deleteprog.setVisible(false);
 
         deletecollege = new JButton("Delete College");
@@ -205,7 +208,8 @@ public class GUI extends JFrame implements ActionListener {
         table.setRowHeight(25);
         programTable.setRowHeight(25);
         collegetable.setRowHeight(25);
-       
+        
+        
         // Add components to menu
         menu.add(modifystudent);
         menu.add(addcollege);
@@ -234,7 +238,7 @@ public class GUI extends JFrame implements ActionListener {
     
     
 
-        // Action listeners
+      
     
         studbuttons.addActionListener(this);
         collegebutton.addActionListener(this);
@@ -247,7 +251,7 @@ public class GUI extends JFrame implements ActionListener {
         addcollege.addActionListener(this);
         delete.addActionListener(this);
         modifystudent.addActionListener(this);
-        deleteprog.addActionListener(this);
+        deleteprog.addActionListener(this); 
         deletecollege.addActionListener(this);
         modifyprogram.addActionListener(this);
         modifycollege.addActionListener(this);
@@ -263,6 +267,8 @@ public class GUI extends JFrame implements ActionListener {
         menu.setResizable(false);
         menu.setVisible(true);
     }
+
+    
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == modifystudent) {
@@ -291,14 +297,14 @@ public class GUI extends JFrame implements ActionListener {
             addprog.setVisible(false);
             addcollege.setVisible(false);
         
-            delete.setVisible(true); // student
-            deleteprog.setVisible(false); //prog
-        deletecollege.setVisible(false); // college
+            delete.setVisible(true); 
+            deleteprog.setVisible(false); 
+        deletecollege.setVisible(false); 
         
-            modifystudent.setVisible(true);//student
-            modifyprogram.setVisible(false);//program
-        modifycollege.setVisible(false);//college
-        filtertable();// for reset when transitioning    to a different table 
+            modifystudent.setVisible(true);
+            modifyprogram.setVisible(false);
+        modifycollege.setVisible(false);
+        filtertable();
         }
         if (e.getSource() == probgButton) {
             tableScrollPane.setVisible(false);
@@ -313,14 +319,14 @@ public class GUI extends JFrame implements ActionListener {
             addprog.setVisible(true);
             addcollege.setVisible(false);
         
-            delete.setVisible(false); // student
-            deleteprog.setVisible(true); //prog
-        deletecollege.setVisible(false); // college
+            delete.setVisible(false);
+            deleteprog.setVisible(true);
+        deletecollege.setVisible(false); 
         
-            modifystudent.setVisible(false);//student
-            modifyprogram.setVisible(true);//program
-        modifycollege.setVisible(false);//college
-        filterprogram();// for reset when transition to a different table 
+            modifystudent.setVisible(false);
+            modifyprogram.setVisible(true);
+        modifycollege.setVisible(false);
+        filterprogram();
 
        
         }
@@ -337,14 +343,14 @@ public class GUI extends JFrame implements ActionListener {
             addprog.setVisible(false);
             addcollege.setVisible(true);
         
-            delete.setVisible(false); // student
-            deleteprog.setVisible(false); //prog
-        deletecollege.setVisible(true); // college
+            delete.setVisible(false); 
+            deleteprog.setVisible(false); 
+        deletecollege.setVisible(true); 
         
-            modifystudent.setVisible(false);//student
-            modifyprogram.setVisible(false);//program
-        modifycollege.setVisible(true);//college
-        filtercollege();// for reset when transition to a different table   
+            modifystudent.setVisible(false);
+            modifyprogram.setVisible(false);
+        modifycollege.setVisible(true);
+        filtercollege();
         }
         if (e.getSource() == progsortcombo) {
             String selectedprog = (String) progsortcombo.getSelectedItem();
@@ -411,6 +417,7 @@ public class GUI extends JFrame implements ActionListener {
             classstudent = new addstudentGUI(this, writer);
         }
         if (e.getSource() == addprog) {
+          
             classprogram = new addprogGUI(this, writer);
         }
         if (e.getSource() == delete) {
@@ -420,9 +427,34 @@ public class GUI extends JFrame implements ActionListener {
             deleteprogram = new removeprogram(this, deleter);
         }
         if (e.getSource() == deletecollege) {
-            deletecoll = new removecollege(this, deleter);
+            deletecoll = new removecollege(this, deleter);}
         }
-    }
+
+        public addprogGUI getAddProgramInstance() {
+            return classprogram; 
+        }
+    
+        public JComboBox<String> getProgramDropdown() {
+            if (classprogram == null) {
+                System.out.println("Error: classprogram is null.");
+                return new JComboBox<>(); 
+            }
+            return classprogram.getProgramCodeCombo();
+        }
+        public addcollegeGUI collegeaddcollegeGUI(){
+            return classcollege;
+        }
+
+      
+
+        
+        public addstudentGUI getAddStudentInstance(){
+            return classstudent;
+        }
+        
+       
+        
+        
 
     public DefaultTableModel getstudentModel() {
         return model;
@@ -440,7 +472,16 @@ public class GUI extends JFrame implements ActionListener {
         return table;
     }
 
-    // Filtering methods
+    public JTable getprogramTable(){
+        return programTable;
+    }
+    public JTable getcollegeTable(){
+        return collegetable;
+    }
+  
+
+    
+    
     private void filtertable(){
         String query = searchbar.getText().trim();
         if (query.isEmpty()) {
@@ -467,4 +508,6 @@ public class GUI extends JFrame implements ActionListener {
             collsorter.setRowFilter(RowFilter.regexFilter("(?i)" + query));
         }
     }
+   
+    
 } 

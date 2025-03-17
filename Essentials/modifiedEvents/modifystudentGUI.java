@@ -62,6 +62,7 @@ public class modifystudentGUI {
     // Opens an edit form pre-populated with the student's data.
     // Allows the user to change the ID as well.
     private void modifiedFrame(String[] record) {
+    
         // Store the original ID for lookup
         final String originalId = record[0];
         
@@ -81,13 +82,28 @@ public class modifystudentGUI {
         JLabel lastNameLabel = new JLabel("Last Name:");
         JTextField lastNameField = new JTextField(record[2]);
         JLabel yearLevelLabel = new JLabel("Year Level:");
-        JTextField yearLevelField = new JTextField(record[3]);
+       
         JLabel genderLabel = new JLabel("Gender:");
-        JTextField genderField = new JTextField(record[4]);
+      
         JLabel programCodeLabel = new JLabel("Program Code:");
-        JTextField programCodeField = new JTextField(record[5]);
+        DefaultTableModel programModel = maingui.getprogramModel();
+        JComboBox<String> programCodeCombo = new JComboBox<>();
+        String[] yearModel = {"", "1st year", "2nd year", "3rd year", "4th year"};
+        JComboBox<String> yearLevelCombo = new JComboBox<>(yearModel);
+        String[] genderOptions = {"", "M", "F"};
+        JComboBox<String> genderCombo = new JComboBox<>(genderOptions);
         
-        // Set bounds for components
+        for (int i = 0; i < programModel.getRowCount(); i++) {
+            programCodeCombo.addItem(programModel.getValueAt(i, 0).toString().trim());
+        }
+        yearLevelCombo.setSelectedItem(record[3].trim());
+        genderCombo.setSelectedItem(record[4].trim());
+        programCodeCombo.setSelectedItem(record[5].trim());
+        
+      
+
+        
+
         idLabel.setBounds(20, 20, 65, 25);
         idField.setBounds(130, 20, 150, 25);
         firstNameLabel.setBounds(20, 60, 100, 25);
@@ -95,16 +111,16 @@ public class modifystudentGUI {
         lastNameLabel.setBounds(20, 100, 100, 25);
         lastNameField.setBounds(130, 100, 150, 25);
         yearLevelLabel.setBounds(20, 140, 100, 25);
-        yearLevelField.setBounds(130, 140, 150, 25);
+        yearLevelCombo.setBounds(130, 140, 150, 25);
         genderLabel.setBounds(20, 180, 100, 25);
-        genderField.setBounds(130, 180, 150, 25);
+        genderCombo.setBounds(130, 180, 150, 25);
         programCodeLabel.setBounds(20, 220, 100, 25);
-        programCodeField.setBounds(130, 220, 150, 25);
+        programCodeCombo .setBounds(130, 220, 150, 25);
         
         JButton updateButton = new JButton("Update");
         updateButton.setBounds(130, 260, 100, 30);
         
-        // Add components to the edit dialog
+        
         editDialog.add(idLabel);
         editDialog.add(idField);
         editDialog.add(firstNameLabel);
@@ -112,32 +128,31 @@ public class modifystudentGUI {
         editDialog.add(lastNameLabel);
         editDialog.add(lastNameField);
         editDialog.add(yearLevelLabel);
-        editDialog.add(yearLevelField);
+        editDialog.add(yearLevelCombo);
         editDialog.add(genderLabel);
-        editDialog.add(genderField);
+        editDialog.add(genderCombo);
         editDialog.add(programCodeLabel);
-        editDialog.add(programCodeField);
+        editDialog.add(programCodeCombo );
         editDialog.add(updateButton);
         
-        // Add ActionListener for the update button BEFORE showing the dialog
+
         updateButton.addActionListener(ae -> {
-            // Get new values from fields (ID may be modified)
+           
             String newId = idField.getText().trim();
             String newFirstName = firstNameField.getText().trim();
             String newLastName = lastNameField.getText().trim();
-            String newYearLevel = yearLevelField.getText().trim();
-            String newGender = genderField.getText().trim();
-            String newProgramCode = programCodeField.getText().trim();
+            String newYearLevel = (String)yearLevelCombo.getSelectedItem();
+            String newGender = (String)genderCombo.getSelectedItem();
+            String newProgramCode = (String) programCodeCombo.getSelectedItem();
             
-            // Validate that none of the fields are empty
+           
             if (newId.isEmpty() || newFirstName.isEmpty() || newLastName.isEmpty() ||
                 newYearLevel.isEmpty() || newGender.isEmpty() || newProgramCode.isEmpty()) {
                 JOptionPane.showMessageDialog(editDialog, "All fields must be filled.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            // Check for duplicate: if the new ID is different from the original,
-            // ensure that it does not already exist in the table.
+            
             if (!newId.equals(originalId)) {
                 for (int i = 0; i < model.getRowCount(); i++) {
                     String existingId = model.getValueAt(i, 0).toString().trim();
@@ -148,10 +163,10 @@ public class modifystudentGUI {
                 }
             }
             
-            // Prepare the updated record array
+  
             String[] newRecord = { newId, newFirstName, newLastName, newYearLevel, newGender, newProgramCode };
             
-            // Find the table model row corresponding to the original ID
+        
             int modelRow = findRowById(originalId);
             if (modelRow != -1) {
                 model.setValueAt(newId, modelRow, 0);
@@ -168,11 +183,11 @@ public class modifystudentGUI {
             editDialog.dispose();
         });
         
-        // Now show the edit dialog
+    
         editDialog.setVisible(true);
     };
     
-    // Find a row in the table model by comparing the ID column.
+ 
     private int findRowById(String id) {
         for (int i = 0; i < model.getRowCount(); i++) {
             if (model.getValueAt(i, 0).toString().trim().equals(id)) {
@@ -181,8 +196,7 @@ public class modifystudentGUI {
         }
         return -1;
     }
-    
-    // Update the CSV file: skip the header (row index 0)
+ 
     private void updateCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         
@@ -219,7 +233,6 @@ public class modifystudentGUI {
         System.out.println("CSV file updated successfully.");
     }
     
-    // Search CSV file for a record by ID (skips header automatically by checking all rows)
     private String[] searchCSVForRecordById(String id) {
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_PATH))) {
             String line;

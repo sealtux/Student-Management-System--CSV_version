@@ -13,7 +13,7 @@ public class loadcollege {
     public loadcollege(GUI gui, create write){
         try(BufferedReader br = new BufferedReader(new FileReader(create.COLLEGE_FILE))){
             String line;
-            br.readLine();
+     
             DefaultTableModel collegemodel = gui.getcollegeModel();
             while((line = br.readLine()) !=null){
                 String[] data = line.split(",");

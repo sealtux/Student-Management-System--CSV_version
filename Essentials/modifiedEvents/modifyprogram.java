@@ -73,22 +73,22 @@ public class modifyprogram {
         editDialog.setLocationRelativeTo(null);
         editDialog.setResizable(false);
         
-        // Program Code (editable text field)
+   
         JLabel codeLabel = new JLabel("Program Code:");
         JTextField codeField = new JTextField(record[0]);
         
-        // Program Name (editable text field)
+
         JLabel nameLabel = new JLabel("Program Name:");
         JTextField nameField = new JTextField(record[1]);
         
-        // College Code (JComboBox)
+
         JLabel collegeCodeLabel = new JLabel("College Code:");
         String[] collegeOptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
         JComboBox<String> collegeCodeCombo = new JComboBox<>(collegeOptions);
-        // Set the selected item to the existing college code from the record
+   
         collegeCodeCombo.setSelectedItem(record[2]);
         
-        // Set bounds for components
+
         codeLabel.setBounds(20, 20, 100, 25);
         codeField.setBounds(130, 20, 150, 25);
         nameLabel.setBounds(20, 60, 100, 25);
@@ -99,7 +99,7 @@ public class modifyprogram {
         JButton updateButton = new JButton("Update");
         updateButton.setBounds(130, 150, 100, 30);
         
-        // Add components to the dialog
+     
         editDialog.add(codeLabel);
         editDialog.add(codeField);
         editDialog.add(nameLabel);
@@ -108,20 +108,20 @@ public class modifyprogram {
         editDialog.add(collegeCodeCombo);
         editDialog.add(updateButton);
         
-        // Add action listener for update BEFORE showing dialog
+      
         updateButton.addActionListener(ae -> {
-            // Get new values from fields
+          
             String newCode = codeField.getText().trim();
             String newName = nameField.getText().trim();
             String newCollegeCode = (String) collegeCodeCombo.getSelectedItem();
             
-            // Validate that none of the fields are empty
+         
             if (newCode.isEmpty() || newName.isEmpty() || newCollegeCode.isEmpty()) {
                 JOptionPane.showMessageDialog(editDialog, "All fields must be filled.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            // If the new program code is different from the original, check for duplicates
+        
             if (!newCode.equals(originalCode)) {
                 for (int i = 0; i < model.getRowCount(); i++) {
                     String existingCode = model.getValueAt(i, 0).toString().trim();
@@ -132,7 +132,7 @@ public class modifyprogram {
                 }
             }
             
-            // Prepare the updated record array
+          
             String[] newRecord = { newCode, newName, newCollegeCode };
             
            
@@ -166,7 +166,7 @@ public class modifyprogram {
     private void updateProgramCSVFile(int modelRow, String[] newRecord) {
         List<String[]> csvData = new ArrayList<>();
         
-        // Read all CSV rows into a list using PROGRAM_FILE_PATH
+    
         try (BufferedReader br = new BufferedReader(new FileReader(PROGRAM_FILE_PATH))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -186,7 +186,7 @@ public class modifyprogram {
             return;
         }
         
-        // Write the updated list back to the CSV file using PROGRAM_FILE_PATH
+        
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(PROGRAM_FILE_PATH))) {
             for (String[] row : csvData) {
                 bw.write(String.join(",", row));
@@ -199,7 +199,7 @@ public class modifyprogram {
         System.out.println("Program CSV file updated successfully.");
     }
     
-    // Search the program CSV file for a record by Program Code.
+
     private String[] searchCSVForProgramByCode(String code) {
         try (BufferedReader br = new BufferedReader(new FileReader(PROGRAM_FILE_PATH))) {
             String line;

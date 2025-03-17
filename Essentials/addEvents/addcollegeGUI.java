@@ -29,10 +29,10 @@ public class addcollegeGUI {
         collegecode.setBounds(20, 20, 100, 25);
         collegename.setBounds(20, 70, 100, 25);
 
-        String[] collegeoptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
+        String[] collegeoptions = {"", "CCS", "CEBA", "CHS", "COE",};
         JComboBox<String> collegecombo = new JComboBox<>(collegeoptions);
         collegecombo.setBounds(110, 20, 180, 25);
-        AutoCompletion.enable(collegecombo);  // Enable auto-completion
+        AutoCompletion.enable(collegecombo);  
 
         String[] collegenameoptions = {
             "", "College of Computer Studies", "College of Economics and Business Administration",
@@ -50,23 +50,22 @@ public class addcollegeGUI {
         addCollegeDialog.add(collegenamecombo);
         addCollegeDialog.add(submit);
 
-        // Mapping College Codes to College Names
+      
         Map<String, String> collegeMap = new HashMap<>();
         collegeMap.put("CCS", "College of Computer Studies");
         collegeMap.put("CEBA", "College of Economics and Business Administration");
         collegeMap.put("CHS", "College of Health Sciences");
         collegeMap.put("COE", "College of Engineering");
-        collegeMap.put("CSM", "College of Science and Mathematics");
-        collegeMap.put("CASS", "College of Arts and Social Sciences");
-        collegeMap.put("CED", "College of Education");
+        
+    
 
-        // Auto-update College Name when College Code is selected
+    
         collegecombo.addActionListener(e -> {
             String selectedCode = (String) collegecombo.getSelectedItem();
             collegenamecombo.setSelectedItem(collegeMap.getOrDefault(selectedCode, ""));
         });
 
-        // Auto-update College Code when College Name is selected
+       
         collegenamecombo.addActionListener(e -> {
             String selectedName = (String) collegenamecombo.getSelectedItem();
             String matchedCode = collegeMap.entrySet().stream()
@@ -77,7 +76,7 @@ public class addcollegeGUI {
             collegecombo.setSelectedItem(matchedCode);
         });
 
-        // Submit button logic
+       
         submit.addActionListener(e -> {
             String collegeco = (String) collegecombo.getSelectedItem();
             String collegena = (String) collegenamecombo.getSelectedItem();
@@ -87,7 +86,7 @@ public class addcollegeGUI {
                 return;
             }
 
-            // Check if record already exists in the table
+           
             DefaultTableModel model = mainGUI.getcollegeModel();
             boolean exists = false;
             for (int i = 0; i < model.getRowCount(); i++) {
@@ -102,10 +101,10 @@ public class addcollegeGUI {
                 return;
             }
 
-            // Save to CSV using writer's method
+           
             writer.college(collegeco, collegena);
 
-            // Add to the table model if mainGUI is not null
+          
             if (mainGUI != null) {
                 model.addRow(new Object[]{collegeco, collegena});
             } 
@@ -113,7 +112,7 @@ public class addcollegeGUI {
             addCollegeDialog.dispose();
         });
 
-        // Center the dialog, prevent resizing, then show the dialog
+       
         addCollegeDialog.setLocationRelativeTo(null);
         addCollegeDialog.setResizable(false);
         addCollegeDialog.setVisible(true);

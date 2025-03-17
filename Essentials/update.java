@@ -14,7 +14,7 @@ public update(int modelRow, int columnIndex, String newValue) {
     String csvFile = "students.csv";
     List<String[]> csvData = new ArrayList<>();
 
-    // Step 1: Read the CSV into memory
+   
     try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
         String line;
         while ((line = br.readLine()) != null) {
@@ -25,7 +25,7 @@ public update(int modelRow, int columnIndex, String newValue) {
         ex.printStackTrace();
     }
 
-    // Step 2: Modify the specific cell
+  
     if (modelRow >= 0 && modelRow < csvData.size()) {
         String[] row = csvData.get(modelRow);
         if (columnIndex >= 0 && columnIndex < row.length) {
@@ -39,7 +39,7 @@ public update(int modelRow, int columnIndex, String newValue) {
         return;
     }
 
-    // Step 3: Write the updated data back to the CSV file
+    
     try (BufferedWriter bw = new BufferedWriter(new FileWriter(csvFile))) {
         for (String[] row : csvData) {
             bw.write(String.join(",", row));

@@ -9,44 +9,54 @@ import java.awt.Frame;
 public class removestud {
     public static final String FILE_PATH = "C:\\Users\\Admin\\Desktop\\ccc151\\students.csv";
     GUI maingui;
-    
+
     public removestud(GUI gui, delete de) {
         this.maingui = gui;
-        
-       
-        JDialog deleteStudDialog = new JDialog((Frame)null, "Delete a Student", true);
+        JTable studentTable = maingui.getStudentTable(); 
+
+     
+        JDialog deleteStudDialog = new JDialog((Frame) null, "Delete Student", true);
         deleteStudDialog.setLayout(null);
         deleteStudDialog.setSize(300, 180);
         deleteStudDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-
-      
-        JLabel deleteLabel = new JLabel("Enter ID:");
-        JTextField deleteBar = new JTextField();
-        JButton submit = new JButton("Confirm");
-
         
-        deleteLabel.setBounds(30, 30, 180, 25);
-        deleteBar.setBounds(85, 30, 70, 25);
-        submit.setBounds(85, 80, 130, 25);
+        JLabel infoLabel = new JLabel("Select a row and press 'Delete':");
+        JButton deleteButton = new JButton("Delete");
 
-   
-        deleteStudDialog.add(deleteLabel);
-        deleteStudDialog.add(deleteBar);
-        deleteStudDialog.add(submit);
+        infoLabel.setBounds(50, 30, 200, 25);
+        deleteButton.setBounds(85, 80, 130, 25);
 
-        // Center the dialog and disable resizing (removes minimize/maximize)
+        deleteStudDialog.add(infoLabel);
+        deleteStudDialog.add(deleteButton);
         deleteStudDialog.setLocationRelativeTo(null);
         deleteStudDialog.setResizable(false);
 
-        // Add action listener for the submit button
-        submit.addActionListener(e -> {
-            String bar = deleteBar.getText().trim();
+        // Delete Button Action
+        deleteButton.addActionListener(e -> {
+            int selectedRow = studentTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(deleteStudDialog, "Please select a row first!", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             DefaultTableModel model = maingui.getstudentModel();
-            de.removeRowByValue(model, bar, 0, FILE_PATH);
-            deleteStudDialog.dispose();
+            String selectedId = model.getValueAt(selectedRow, 0).toString().trim(); 
+
+            // Confirmation Message
+            int confirmation = JOptionPane.showConfirmDialog(
+                    deleteStudDialog,
+                    "Are you sure you want to delete student ID: " + selectedId + "?",
+                    "Confirm Deletion",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            if (confirmation == JOptionPane.YES_OPTION) {
+                de.removeRowByValue(model, selectedId, 0, FILE_PATH);
+                JOptionPane.showMessageDialog(deleteStudDialog, "Student deleted successfully.");
+            }
         });
 
-        // Finally, show the dialog
         deleteStudDialog.setVisible(true);
     }
 }
