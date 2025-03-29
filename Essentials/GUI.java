@@ -44,6 +44,8 @@ public class GUI extends JFrame implements ActionListener {
         // Initialize file handler and deleter
         writer = new create();
         deleter = new delete();
+       
+      
 
         // Table column names (assumes no header row in the CSV)
         String[] columnNames = {"ID", "First Name", "Last Name", "Year Level", "Gender", "Program Code"};
@@ -267,18 +269,56 @@ public class GUI extends JFrame implements ActionListener {
         menu.setResizable(false);
         menu.setVisible(true);
     }
-
+   
     
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == modifystudent) {
-            modifystud = new modifystudentGUI(this);
+            int selectedRow = table.getSelectedRow();
+            if (selectedRow != -1) { // Ensure a row is selected
+                int modelRow = table.convertRowIndexToModel(selectedRow); // Convert view index to model index
+                String id = model.getValueAt(modelRow, 0).toString(); // Fetch ID
+                String firstName = model.getValueAt(modelRow, 1).toString();
+                String lastName = model.getValueAt(modelRow, 2).toString();
+                String yearLevel = model.getValueAt(modelRow, 3).toString();
+                String gender = model.getValueAt(modelRow, 4).toString();
+                String programCode = model.getValueAt(modelRow, 5).toString();
+        
+                // Pass the fetched values to the modify student GUI
+                modifystud = new modifystudentGUI(this, id, firstName, lastName, yearLevel, gender, programCode);
+            } else {
+                JOptionPane.showMessageDialog(menu, "Please select a student to modify.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
         }
         if(e.getSource() == modifyprogram){
-            modifyprog = new modifyprogram(this);
+            
+            int selectedRow = programTable.getSelectedRow();
+            if (selectedRow != -1) {
+                // Convert the view index to the model index
+                int modelRow = programTable.convertRowIndexToModel(selectedRow);
+                // Retrieve data from the program model
+                String programCode = programmodel.getValueAt(modelRow, 0).toString();
+                String programName = programmodel.getValueAt(modelRow, 1).toString();
+                String collegeCode = programmodel.getValueAt(modelRow, 2).toString();
+                // Pass the data to the modifyprogram constructor
+                modifyprog = new modifyprogram(this, programCode, programName, collegeCode);
+            } else {
+                JOptionPane.showMessageDialog(menu, "Please select a program to modify.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
         }
         if(e.getSource() == modifycollege){
-            modifycoll = new modifycollege(this);
+            int selectedRow = collegetable.getSelectedRow();
+            if (selectedRow != -1) {
+                // Convert the view index to the model index
+                int modelRow = collegetable.convertRowIndexToModel(selectedRow);
+                // Retrieve data from the college model
+                String collegeCode = collegemodel.getValueAt(modelRow, 0).toString();
+                String collegeName = collegemodel.getValueAt(modelRow, 1).toString();
+                // Pass the data to the modifycollege constructor
+                modifycoll = new modifycollege(this, collegeCode, collegeName);
+            } else {
+                JOptionPane.showMessageDialog(menu, "Please select a college to modify.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            }
         }
         if (e.getSource() == searchbutton) {
             filtertable();
@@ -421,38 +461,61 @@ public class GUI extends JFrame implements ActionListener {
             classprogram = new addprogGUI(this, writer);
         }
         if (e.getSource() == delete) {
-            deletestudent = new removestud(this, deleter);
+            if (e.getSource() == delete) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow != -1) {
+                    int modelRow = table.convertRowIndexToModel(selectedRow);
+                    String id = model.getValueAt(modelRow, 0).toString(); 
+                    deletestudent = new removestud(this, deleter, id);
+                } else {
+                    JOptionPane.showMessageDialog(menu, "Please select a student to delete.");
+                }
+            }
+            
         }
         if (e.getSource() == deleteprog) {
-            deleteprogram = new removeprogram(this, deleter);
+            if (e.getSource() == deleteprog) {
+                int selectedRow = programTable.getSelectedRow();
+                if (selectedRow != -1) {
+                    int modelRow = programTable.convertRowIndexToModel(selectedRow);
+                    String progCode = programmodel.getValueAt(modelRow, 0).toString(); 
+                    deleteprogram = new removeprogram(this, deleter, progCode);
+                } else {
+                    JOptionPane.showMessageDialog(menu, "Please select a program to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+            
         }
         if (e.getSource() == deletecollege) {
-            deletecoll = new removecollege(this, deleter);}
+            if (e.getSource() == deletecollege) {
+                int selectedRow = collegetable.getSelectedRow();
+                if (selectedRow != -1) {
+                    int modelRow = collegetable.convertRowIndexToModel(selectedRow);
+                    String collegeCode = collegemodel.getValueAt(modelRow, 0).toString(); // Assuming college code is in column 0
+                    deletecoll = new removecollege(this, deleter, collegeCode);
+                } else {
+                    JOptionPane.showMessageDialog(menu, "Please select a college to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+            
         }
+    }
 
         public addprogGUI getAddProgramInstance() {
             return classprogram; 
         }
     
-        public JComboBox<String> getProgramDropdown() {
-            if (classprogram == null) {
-                System.out.println("Error: classprogram is null.");
-                return new JComboBox<>(); 
-            }
-            return classprogram.getProgramCodeCombo();
-        }
+      
         public addcollegeGUI collegeaddcollegeGUI(){
             return classcollege;
         }
-
-      
 
         
         public addstudentGUI getAddStudentInstance(){
             return classstudent;
         }
         
-       
+    
         
         
 
@@ -482,32 +545,7 @@ public class GUI extends JFrame implements ActionListener {
 
     
     
-    private void filtertable(){
-        String query = searchbar.getText().trim();
-        if (query.isEmpty()) {
-            sorter.setRowFilter(null);
-        } else {
-            sorter.setRowFilter(RowFilter.regexFilter("(?i)" + query));
-        }
-    }
-
-    private void filterprogram(){
-        String query = searchbar.getText().trim();
-        if (query.isEmpty()) {
-            progsorter.setRowFilter(null);
-        } else {
-            progsorter.setRowFilter(RowFilter.regexFilter("(?i)" + query));
-        }
-    }
-
-    private void filtercollege() {
-        String query = searchbar.getText().trim();
-        if (query.isEmpty()) {
-            collsorter.setRowFilter(null);
-        } else {
-            collsorter.setRowFilter(RowFilter.regexFilter("(?i)" + query));
-        }
-    }
-   
-    
-} 
+    private void filtertable() { sorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchbar.getText().trim())); }
+    private void filterprogram() { progsorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchbar.getText().trim())); }
+    private void filtercollege() { collsorter.setRowFilter(RowFilter.regexFilter("(?i)" + searchbar.getText().trim())); }
+}

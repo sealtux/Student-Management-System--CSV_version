@@ -5,17 +5,13 @@ import javax.swing.table.DefaultTableModel;
 import Essentials.GUI;
 import Essentials.create;
 import java.awt.Frame;
-import Essentials.AutoCompletion;
-import java.util.HashMap;
-import java.util.Map;
 
 public class addcollegeGUI {
     private GUI mainGUI;
 
     public addcollegeGUI(GUI mainGUI, create writer) {
-        this.mainGUI = mainGUI;  // Store main GUI reference
+        this.mainGUI = mainGUI; 
 
-        // Create a modal JDialog for "Add College"
         JDialog addCollegeDialog = new JDialog((Frame) null, "Add College", true);
         addCollegeDialog.setSize(350, 200);
         addCollegeDialog.setLayout(null);
@@ -29,90 +25,79 @@ public class addcollegeGUI {
         collegecode.setBounds(20, 20, 100, 25);
         collegename.setBounds(20, 70, 100, 25);
 
-        String[] collegeoptions = {"", "CCS", "CEBA", "CHS", "COE",};
-        JComboBox<String> collegecombo = new JComboBox<>(collegeoptions);
-        collegecombo.setBounds(110, 20, 180, 25);
-        AutoCompletion.enable(collegecombo);  
+        JTextField collegecodetext = new JTextField();
+        collegecodetext.setBounds(110, 20, 180, 25);
 
-        String[] collegenameoptions = {
-            "", "College of Computer Studies", "College of Economics and Business Administration",
-            "College of Health Sciences", "College of Engineering",
-            "College of Science and Mathematics", "College of Arts and Social Sciences",
-            "College of Education"
-        };
-        JComboBox<String> collegenamecombo = new JComboBox<>(collegenameoptions);
-        collegenamecombo.setBounds(110, 70, 180, 25);
-        AutoCompletion.enable(collegenamecombo);
+        JTextField collegenametext = new JTextField();
+        collegenametext.setBounds(110, 70, 180, 25);
 
         addCollegeDialog.add(collegecode);
         addCollegeDialog.add(collegename);
-        addCollegeDialog.add(collegecombo);
-        addCollegeDialog.add(collegenamecombo);
+        addCollegeDialog.add(collegecodetext);
+        addCollegeDialog.add(collegenametext);
         addCollegeDialog.add(submit);
 
-      
-        Map<String, String> collegeMap = new HashMap<>();
-        collegeMap.put("CCS", "College of Computer Studies");
-        collegeMap.put("CEBA", "College of Economics and Business Administration");
-        collegeMap.put("CHS", "College of Health Sciences");
-        collegeMap.put("COE", "College of Engineering");
-        
-    
-
-    
-        collegecombo.addActionListener(e -> {
-            String selectedCode = (String) collegecombo.getSelectedItem();
-            collegenamecombo.setSelectedItem(collegeMap.getOrDefault(selectedCode, ""));
-        });
-
-       
-        collegenamecombo.addActionListener(e -> {
-            String selectedName = (String) collegenamecombo.getSelectedItem();
-            String matchedCode = collegeMap.entrySet().stream()
-                    .filter(entry -> entry.getValue().equals(selectedName))
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse("");
-            collegecombo.setSelectedItem(matchedCode);
-        });
-
-       
         submit.addActionListener(e -> {
-            String collegeco = (String) collegecombo.getSelectedItem();
-            String collegena = (String) collegenamecombo.getSelectedItem();
+            String collegeco = collegecodetext.getText().trim();
+            String collegena = collegenametext.getText().trim();
 
             if (collegeco.isEmpty() || collegena.isEmpty()) {
                 JOptionPane.showMessageDialog(addCollegeDialog, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-           
             DefaultTableModel model = mainGUI.getcollegeModel();
             boolean exists = false;
+            boolean existscollegename = false;
             for (int i = 0; i < model.getRowCount(); i++) {
                 if (model.getValueAt(i, 0).toString().trim().equals(collegeco)) {
                     exists = true;
                     break;
                 }
             }
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 1).toString().trim().equals(collegena)) {
+                    existscollegename = true;
+                    break;
+                }
+            }
+
             if (exists) {
                 JOptionPane.showMessageDialog(addCollegeDialog, "Record with College Code " + collegeco + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                 addCollegeDialog.dispose();
                 return;
             }
 
-           
-            writer.college(collegeco, collegena);
+            if (existscollegename) {
+                JOptionPane.showMessageDialog(addCollegeDialog, "Record with College Name " + collegena + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                addCollegeDialog.dispose();
+                return;
+            }
 
-          
-            if (mainGUI != null) {
-                model.addRow(new Object[]{collegeco, collegena});
-            } 
+            
+            int decision = JOptionPane.showConfirmDialog(
+                    addCollegeDialog,
+                    "Are you sure you want to add this college?\nCode: " + collegeco + "\nName: " + collegena,
+                    "Confirm Addition",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
 
-            addCollegeDialog.dispose();
+            if (decision == JOptionPane.YES_OPTION) {
+               
+                writer.college(collegeco, collegena);
+
+               
+                if (mainGUI != null) {
+                    model.addRow(new Object[]{collegeco, collegena});
+                } 
+
+                JOptionPane.showMessageDialog(addCollegeDialog, "College added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+                addCollegeDialog.dispose();
+            }
+            
         });
 
-       
         addCollegeDialog.setLocationRelativeTo(null);
         addCollegeDialog.setResizable(false);
         addCollegeDialog.setVisible(true);

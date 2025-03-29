@@ -3,94 +3,91 @@ package Essentials.removeEvents;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import Essentials.delete;
-
 import Essentials.GUI;
 import java.awt.Frame;
-
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class removeprogram {
     public static final String PROGRAM_FILE = "C:\\Users\\Admin\\Desktop\\ccc151\\program.csv";
     private static final String STUDENT_PATH = "C:\\Users\\Admin\\Desktop\\ccc151\\students.csv";
 
-    GUI maingui;
-    
+    private GUI maingui;
+    private delete de;
+    private DefaultTableModel programModel;
+    private DefaultTableModel studentTableModel;
+    private String programCode;
 
-    public removeprogram(GUI gui, delete de) {
+    public removeprogram(GUI gui, delete de, String programCode) {
+        setDependencies(gui, de);
+        this.programCode = programCode;
+
+        int confirmation = JOptionPane.showConfirmDialog(
+                null,
+                "Are you sure you want to delete program code: " + programCode + "?",
+                "Confirm Deletion",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (confirmation == JOptionPane.YES_OPTION) {
+            deleteprog();
+        }
+    }
+
+    private void setDependencies(GUI gui, delete de) {
         this.maingui = gui;
-        JTable programTable = maingui.getprogramTable();
+        this.de = de;
+    }
 
-      
-        JDialog deleteProgDialog = new JDialog((Frame) null, "Delete Program", true);
-        deleteProgDialog.setLayout(null);
-        deleteProgDialog.setSize(300, 180);
-        deleteProgDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    private void deleteprog() {
+        if (maingui == null || de == null) {
+            System.err.println("Error: GUI and delete dependencies not set.");
+            return;
+        }
 
-        JLabel infoLabel = new JLabel("Select a row and press 'Delete':");
-        JButton deleteButton = new JButton("Delete");
+        studentTableModel = maingui.getstudentModel();
+        if (studentTableModel == null) {
+            System.err.println("Error: Student table model is null.");
+            return;
+        }
 
-        infoLabel.setBounds(50, 30, 200, 25);
-        deleteButton.setBounds(85, 80, 130, 25);
+        int columnIndex = 5;
+        if (columnIndex < studentTableModel.getColumnCount()) {
+            de.removeRowByValue(studentTableModel, programCode, columnIndex, STUDENT_PATH);
+        }
 
-        deleteProgDialog.add(infoLabel);
-        deleteProgDialog.add(deleteButton);
-        deleteProgDialog.setLocationRelativeTo(null);
-        deleteProgDialog.setResizable(false);
+        programModel = maingui.getprogramModel();
+        List<String[]> updatedData = readCSV(PROGRAM_FILE);
+        updatedData.removeIf(row -> row.length > 0 && row[0].trim().equals(programCode));
 
-       
-        deleteButton.addActionListener(e -> {
-            int selectedRow = programTable.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(deleteProgDialog, "Please select a row first!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-                
-               
+        de.writeCSV(PROGRAM_FILE, updatedData);
+        refreshTable(programModel, updatedData);
+
+        JOptionPane.showMessageDialog(null, "Program deleted successfully.");
+    }
+
+   
+    private void refreshTable(DefaultTableModel model, List<String[]> updatedData) {
+        model.setRowCount(0);
+        for (String[] row : updatedData) {
+            model.addRow(row);
+        }
+        model.fireTableDataChanged();
+    }
+
+  
+    private List<String[]> readCSV(String filePath) {
+        List<String[]> data = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                data.add(line.split(","));
             }
-
-            DefaultTableModel programModel = maingui.getprogramModel();
-            String programCode = programModel.getValueAt(selectedRow, 0).toString().trim(); 
-
-
-          
-            int confirmation = JOptionPane.showConfirmDialog(
-                    deleteProgDialog,
-                    "Are you sure you want to delete program code: " + programCode + "?",
-                    "Confirm Deletion",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-            );
-
-            if (confirmation == JOptionPane.YES_OPTION) {
-              
-                if (programCode.equals(programCode)) {
-                    DefaultTableModel studentTableModel = gui.getstudentModel(); 
-                
-                    int columnIndex = 5;
-                    if (columnIndex >= studentTableModel.getColumnCount()) {
-                        JOptionPane.showMessageDialog(deleteProgDialog, "Invalid column index for program codes.", "Error", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-                
-                    if (studentTableModel.getRowCount() > 0) { 
-                        de.removeRowByValue(studentTableModel, programCode, columnIndex, STUDENT_PATH); 
-                       
-                    } else {
-                        JOptionPane.showMessageDialog(deleteProgDialog, "No students found under BSCS.", "Warning", JOptionPane.WARNING_MESSAGE);
-                    }
-                }
-               
-              
-               
-                de.removeRowByValue(programModel, programCode, 0, PROGRAM_FILE);
-
-                
-                programModel.removeRow(selectedRow);
-
-                
-
-                JOptionPane.showMessageDialog(deleteProgDialog, "Program deleted successfully.");
-            }
-        });
-
-        deleteProgDialog.setVisible(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
 }

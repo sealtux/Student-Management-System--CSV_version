@@ -2,153 +2,156 @@ package Essentials.modifiedEvents;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-
-import Essentials.AutoCompletion;
 import Essentials.GUI;
+import java.awt.Frame;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class modifycollege {
+    private static final String COLLEGE_FILE = "C:\\Users\\Admin\\Desktop\\ccc151\\college.csv";
+    private static final String PROGRAM_FILE = "C:\\Users\\Admin\\Desktop\\ccc151\\program.csv";
 
-    // CSV file path constant for colleges (adjust as needed)
-    public static final String COLLEGE_FILE = "C:\\Users\\Admin\\Desktop\\ccc151\\college.csv";
-    
-    private GUI mainGUI;
-    private DefaultTableModel model;  // Table model for colleges
+    public modifycollege(GUI gui, String oldCode, String oldName) {
+        int rowIndex = findRowIndex(gui.getcollegeModel(), oldCode);
+        if (rowIndex == -1) {
+            JOptionPane.showMessageDialog(null, "College not found in the table!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        openModifyDialog(gui, oldCode, oldName, rowIndex);
+    }
 
-    // Constructor: receives the main GUI instance and stores its college model
     public modifycollege(GUI gui) {
-        this.mainGUI = gui;
-        this.model = mainGUI.getcollegeModel();  // Assumes your GUI provides this method
-        
-        // Create a simple modify dialog that prompts for a College Code using a JComboBox
-        String[] collegeOptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
-        JComboBox<String> collegeCombo = new JComboBox<>(collegeOptions);
-        JLabel collegeChecker = new JLabel("Enter College Code:");
-        JButton collegeCheckerSubmit = new JButton("MODIFY");
-        
-        JDialog modifyDialog = new JDialog((java.awt.Frame) null, "Modify College", true);
+        JTable collegeTable = gui.getcollegeTable();
+
+        JDialog modifyDialog = new JDialog((Frame) null, "Modify College", true);
         modifyDialog.setLayout(null);
-        modifyDialog.setSize(300, 180);
-        collegeChecker.setBounds(30, 30, 180, 25);
-        collegeCombo.setBounds(150, 30, 80, 25);
-        collegeCheckerSubmit.setBounds(85, 80, 130, 25);
-        modifyDialog.add(collegeChecker);
-        modifyDialog.add(collegeCombo);
-        modifyDialog.add(collegeCheckerSubmit);
+        modifyDialog.setSize(350, 220);
+        modifyDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JLabel infoLabel = new JLabel("Select a row and press 'Modify':");
+        JButton modifyButton = new JButton("Modify");
+
+        infoLabel.setBounds(50, 30, 200, 25);
+        modifyButton.setBounds(100, 80, 130, 25);
+
+        modifyDialog.add(infoLabel);
+        modifyDialog.add(modifyButton);
         modifyDialog.setLocationRelativeTo(null);
         modifyDialog.setResizable(false);
-        
 
-        collegeCheckerSubmit.addActionListener(e -> {
-            String enteredCode = (String) collegeCombo.getSelectedItem();
-            if (enteredCode.isEmpty()) {
-                JOptionPane.showMessageDialog(modifyDialog, "Please enter a College Code.");
+        modifyButton.addActionListener(e -> {
+            DefaultTableModel collegeModel = gui.getcollegeModel();
+            int selectedRow = collegeTable.getSelectedRow();
+
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(modifyDialog, "Please select a row first!", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            String[] record = searchCSVForCollegeByCode(enteredCode);
-            if (record == null) {
-                JOptionPane.showMessageDialog(modifyDialog, "Record with College Code " + enteredCode + " not found.");
-            } else {
-            
-                modifiedFrame(record);
-            }
+
+            int modelRow = collegeTable.convertRowIndexToModel(selectedRow);
+            String collegeCode = collegeModel.getValueAt(modelRow, 0).toString().trim();
+            String collegeName = collegeModel.getValueAt(modelRow, 1).toString().trim();
+
             modifyDialog.dispose();
+            openModifyDialog(gui, collegeCode, collegeName, modelRow);
         });
-        
-     
+
         modifyDialog.setVisible(true);
     }
-    
 
-    private void modifiedFrame(String[] record) {
-        
-        final String originalCode = record[0];
-        
-        // Create a modal edit dialog
-        JDialog editDialog = new JDialog((java.awt.Frame) null, "Edit College", true);
-        editDialog.setSize(350, 250);
-        editDialog.setLayout(null);
-        editDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
-        // College Code label and combo box
-        JLabel codeLabel = new JLabel("College Code:");
-        String[] collegeOptions = {"", "CCS", "CEBA", "CHS", "COE", "CSM", "CASS", "CED"};
-        JComboBox<String> codeCombo = new JComboBox<>(collegeOptions);
-        codeCombo.setSelectedItem(record[0]);  // pre-select the current code
-        
-        // College Name label and combo box
-        JLabel nameLabel = new JLabel("College Name:");
-        String[] collegeNameOptions = {
-            "", "College of Computer Studies", "College of Economics and Business Administration",
-            "College of Health Sciences", "College of Engineering",
-            "College of Science and Mathematics", "College of Arts and Social Sciences",
-            "College of Education"
-        };
-        JComboBox<String> nameCombo = new JComboBox<>(collegeNameOptions);
-        nameCombo.setSelectedItem(record[1]);
-        
-        // Enable auto-completion if available
-        AutoCompletion.enable(codeCombo);
-        AutoCompletion.enable(nameCombo);
-        
-        // Set bounds for components
-        codeLabel.setBounds(20, 20, 100, 25);
-        codeCombo.setBounds(130, 20, 150, 25);
-        nameLabel.setBounds(20, 60, 100, 25);
-        nameCombo.setBounds(130, 60, 150, 25);
-        
-        JButton updateButton = new JButton("Update");
-        updateButton.setBounds(130, 120, 100, 30);
-        
-        // Add components to the edit dialog
-        editDialog.add(codeLabel);
-        editDialog.add(codeCombo);
-        editDialog.add(nameLabel);
-        editDialog.add(nameCombo);
-        editDialog.add(updateButton);
-        
-        // Add action listener BEFORE making dialog visible
-        updateButton.addActionListener(ae -> {
-            String newCode = codeCombo.getSelectedItem().toString().trim();
-            String newName = nameCombo.getSelectedItem().toString().trim();
-            
-         
-            String[] newRecord = { newCode, newName };
-            
-            int modelRow = findRowByCollegeCode(originalCode);
-            if (modelRow != -1) {
-                model.setValueAt(newCode, modelRow, 0);
-                model.setValueAt(newName, modelRow, 1);
-                
-                updateCollegeCSVFile(modelRow, newRecord);
-            } else {
-                JOptionPane.showMessageDialog(editDialog, "Record not found in the table.");
-            }
-            editDialog.dispose();
-        });
-        
-        editDialog.setLocationRelativeTo(null);
-        editDialog.setResizable(false);
-        
-        editDialog.setVisible(true);
-    }
-    
-    private int findRowByCollegeCode(String code) {
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if (model.getValueAt(i, 0).toString().trim().equals(code)) {
+    private int findRowIndex(DefaultTableModel collegeModel, String collegeCode) {
+        for (int i = 0; i < collegeModel.getRowCount(); i++) {
+            if (collegeModel.getValueAt(i, 0).toString().trim().equals(collegeCode)) {
                 return i;
             }
         }
         return -1;
     }
-    
-   
-    private void updateCollegeCSVFile(int modelRow, String[] newRecord) {
+
+    private void openModifyDialog(GUI gui, String oldCode, String oldName, int rowIndex) {
+        JDialog editDialog = new JDialog((JFrame) null, "Edit College", true);
+        editDialog.setSize(350, 250);
+        editDialog.setLayout(null);
+        editDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+        JLabel codeLabel = new JLabel("College Code:");
+        JTextField codeField = new JTextField(oldCode);
+        JLabel nameLabel = new JLabel("College Name:");
+        JTextField nameField = new JTextField(oldName);
+
+        codeLabel.setBounds(20, 20, 100, 25);
+        codeField.setBounds(130, 20, 150, 25);
+        nameLabel.setBounds(20, 60, 100, 25);
+        nameField.setBounds(130, 60, 150, 25);
+
+        JButton updateButton = new JButton("Update");
+        updateButton.setBounds(130, 120, 100, 30);
+
+        editDialog.add(codeLabel);
+        editDialog.add(codeField);
+        editDialog.add(nameLabel);
+        editDialog.add(nameField);
+        editDialog.add(updateButton);
+
+        updateButton.addActionListener(ae -> {
+            String newCode = codeField.getText().trim();
+            String newName = nameField.getText().trim();
+
+            if (!newCode.matches(".*[a-zA-Z].*")) {
+                JOptionPane.showMessageDialog(editDialog, "College Code must contain a value.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (!newName.matches(".*[a-zA-Z].*")) {
+                JOptionPane.showMessageDialog(editDialog, "College Name must contain a value.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            if (collegeExists(gui.getcollegeModel(), newCode, newName, rowIndex)) {
+                JOptionPane.showMessageDialog(editDialog, "A college with this code or name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(editDialog,
+                    "Are you sure you want to update this college?", "Confirm Update",
+                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                updateCollegeRecord(gui, rowIndex, oldCode, newCode, newName);
+                editDialog.dispose();
+            }
+        });
+
+        editDialog.setLocationRelativeTo(null);
+        editDialog.setResizable(false);
+        editDialog.setVisible(true);
+    }
+
+    private boolean collegeExists(DefaultTableModel model, String code, String name, int ignoreRow) {
+        for (int i = 0; i < model.getRowCount(); i++) {
+            if (i == ignoreRow) continue;
+            String existingCode = model.getValueAt(i, 0).toString().trim();
+            String existingName = model.getValueAt(i, 1).toString().trim();
+            if (existingCode.equals(code) || existingName.equals(name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void updateCollegeRecord(GUI gui, int rowIndex, String oldCode, String newCode, String newName) {
+        DefaultTableModel model = gui.getcollegeModel();
+
+        model.setValueAt(newCode, rowIndex, 0);
+        model.setValueAt(newName, rowIndex, 1);
+
+        updateCollegeCSVFile(oldCode, newCode, newName);
+        updateProgramsCollegeCode(gui, oldCode, newCode);
+    }
+
+    private void updateCollegeCSVFile(String oldCode, String newCode, String newName) {
         List<String[]> csvData = new ArrayList<>();
-        
-        
         try (BufferedReader br = new BufferedReader(new FileReader(COLLEGE_FILE))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -157,18 +160,17 @@ public class modifycollege {
             }
         } catch (IOException ex) {
             ex.printStackTrace();
-        }
-        
-        
-        int csvRowIndex = modelRow + 1;
-        if (csvRowIndex >= 1 && csvRowIndex < csvData.size()) {
-            csvData.set(csvRowIndex, newRecord);
-        } else {
-            System.out.println("Error: CSV row index " + csvRowIndex + " out of bounds. CSV rows: " + csvData.size());
             return;
         }
-        
-     
+
+        for (String[] row : csvData) {
+            if (row[0].equals(oldCode)) {
+                row[0] = newCode;
+                row[1] = newName;
+                break;
+            }
+        }
+
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(COLLEGE_FILE))) {
             for (String[] row : csvData) {
                 bw.write(String.join(",", row));
@@ -177,23 +179,39 @@ public class modifycollege {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        
-        System.out.println("College CSV file updated successfully.");
     }
-    
 
-    private String[] searchCSVForCollegeByCode(String code) {
-        try (BufferedReader br = new BufferedReader(new FileReader(COLLEGE_FILE))) {
+    private void updateProgramsCollegeCode(GUI gui, String oldCollegeCode, String newCollegeCode) {
+        DefaultTableModel programModel = gui.getprogramModel();
+        List<String[]> programData = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(PROGRAM_FILE))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] rowData = line.split(",");
-                if (rowData.length > 0 && rowData[0].trim().equals(code)) {
-                    return rowData;
+                String[] row = line.split(",");
+                if (row[2].equals(oldCollegeCode)) {
+                    row[2] = newCollegeCode;
                 }
+                programData.add(row);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return;
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(PROGRAM_FILE))) {
+            for (String[] row : programData) {
+                bw.write(String.join(",", row));
+                bw.newLine();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
         }
-        return null;
+
+        for (int i = 0; i < programModel.getRowCount(); i++) {
+            if (programModel.getValueAt(i, 2).toString().equals(oldCollegeCode)) {
+                programModel.setValueAt(newCollegeCode, i, 2);
+            }
+        }
     }
 }
