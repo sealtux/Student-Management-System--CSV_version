@@ -123,6 +123,20 @@ public class modifyprogram {
                 JOptionPane.showMessageDialog(editDialog, "A program with this code or name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            
+            String codeKey = newCode.trim().toLowerCase();
+String nameKey = newName.trim().toLowerCase();
+
+if (programExists(gui.getprogramModel(), codeKey, nameKey, rowIndex)) {
+    JOptionPane.showMessageDialog(
+        editDialog,
+        "A program with this code or name already exists.",
+        "Error",
+        JOptionPane.ERROR_MESSAGE
+    );
+    return;
+}
+
 
             int choice = JOptionPane.showConfirmDialog(
                 editDialog,
@@ -151,19 +165,26 @@ public class modifyprogram {
         }
         return collegeCodes.toArray(new String[0]);
     }
+    
 
-    private boolean programExists(DefaultTableModel model, String code, String name, int ignoreRow) {
-        for (int i = 0; i < model.getRowCount(); i++) {
-            if (i == ignoreRow) continue;
-            String existingCode = model.getValueAt(i, 0).toString().trim();
-            String existingName = model.getValueAt(i, 1).toString().trim();
-            
-            if (existingCode.equals(code) || existingName.equals(name)) {
-                return true;
-            }
+    private boolean programExists(DefaultTableModel model,
+                              String code, String name,
+                              int excludeRow) {
+    for (int i = 0; i < model.getRowCount(); i++) {
+        if (i == excludeRow) continue;
+        String existingCode = model.getValueAt(i, 0)
+                                   .toString().trim()
+                                   .toLowerCase();
+        String existingName = model.getValueAt(i, 1)
+                                   .toString().trim()
+                                   .toLowerCase();
+        if (existingCode.equals(code) || existingName.equals(name)) {
+            return true;
         }
-        return false;
     }
+    return false;
+}
+
 
     private void updateProgramRecord(GUI gui, int rowIndex, String oldCode, String newCode, String newName, String newCollegeCode) {
         DefaultTableModel model = gui.getprogramModel();
@@ -175,6 +196,7 @@ public class modifyprogram {
         updateProgramCSVFile(oldCode, newCode, newName, newCollegeCode);
         updateStudentRecords(gui, oldCode, newCode);
     }
+    
 
 
     private void updateProgramCSVFile(String oldCode, String newCode, String newName, String newCollegeCode) {
