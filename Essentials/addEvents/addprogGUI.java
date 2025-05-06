@@ -72,11 +72,15 @@ public class addprogGUI {
                 boolean duplicateFound = false;
               
                 for (int i = 0; i < programModel.getRowCount(); i++) {
-                    if (programModel.getValueAt(i, 0).toString().trim().equals(programCode)) {
+                    String existingProgramCode = programModel.getValueAt(i, 0).toString().trim().toLowerCase();
+                    String inputProgramCode = programCode.trim().toLowerCase();
+                
+                    if (existingProgramCode.equals(inputProgramCode)) {
                         duplicateFound = true;
                         break;
                     }
                 }
+                
                 if (duplicateFound) {
                     JOptionPane.showMessageDialog(addProgramDialog, "A record with this Program Code already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -84,11 +88,15 @@ public class addprogGUI {
                 
                 duplicateFound = false;
                 for (int i = 0; i < programModel.getRowCount(); i++) {
-                    if (programModel.getValueAt(i, 1).toString().trim().equals(programName)) {
+                    String existingProgramName = programModel.getValueAt(i, 1).toString().trim().toLowerCase();
+                    String inputProgramName = programName.trim().toLowerCase();
+                
+                    if (existingProgramName.equals(inputProgramName)) {
                         duplicateFound = true;
                         break;
                     }
                 }
+                
                 if (duplicateFound) {
                     JOptionPane.showMessageDialog(addProgramDialog, "A record with this Program Name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;

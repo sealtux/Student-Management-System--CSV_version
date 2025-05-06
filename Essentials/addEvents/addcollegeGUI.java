@@ -49,18 +49,27 @@ public class addcollegeGUI {
             DefaultTableModel model = mainGUI.getcollegeModel();
             boolean exists = false;
             boolean existscollegename = false;
+
             for (int i = 0; i < model.getRowCount(); i++) {
-                if (model.getValueAt(i, 0).toString().trim().equals(collegeco)) {
+                String existingCode = model.getValueAt(i, 0).toString().trim().toLowerCase();
+                String inputCode = collegeco.trim().toLowerCase();
+                
+                if (existingCode.equals(inputCode)) {
                     exists = true;
                     break;
                 }
             }
+            
             for (int i = 0; i < model.getRowCount(); i++) {
-                if (model.getValueAt(i, 1).toString().trim().equals(collegena)) {
-                    existscollegename = true;
-                    break;
-                }
-            }
+    String existingName = model.getValueAt(i, 1).toString().trim().toLowerCase();
+    String inputName = collegena.trim().toLowerCase();
+
+    if (existingName.equals(inputName)) {
+        existscollegename = true;
+        break;
+    }
+}
+
 
             if (exists) {
                 JOptionPane.showMessageDialog(addCollegeDialog, "Record with College Code " + collegeco + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
