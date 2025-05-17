@@ -73,13 +73,13 @@ public class addcollegeGUI {
 
             if (exists) {
                 JOptionPane.showMessageDialog(addCollegeDialog, "Record with College Code " + collegeco + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                addCollegeDialog.dispose();
+                
                 return;
             }
 
             if (existscollegename) {
                 JOptionPane.showMessageDialog(addCollegeDialog, "Record with College Name " + collegena + " already exists.", "Error", JOptionPane.ERROR_MESSAGE);
-                addCollegeDialog.dispose();
+                
                 return;
             }
 

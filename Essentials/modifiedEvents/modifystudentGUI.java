@@ -105,24 +105,29 @@ public class modifystudentGUI {
                 return;
             }
             
-           
+            // Invalid ID format
             if (!newId.matches("^(?!0000)\\d{4}-\\d{4}$")) {
                 JOptionPane.showMessageDialog(editDialog, "Invalid ID format. It should be YYYY-NNNN, where YYYY is a nonzero year.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-            
+            // Year part validity
             int yearPart = Integer.parseInt(newId.substring(0, 4));
             if (yearPart < 2000) {
                 JOptionPane.showMessageDialog(editDialog, "The year in the ID must be 2000 or greater.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
-           
+            // Disallow any ID with sequence 0000 after the dash
+            String[] parts = newId.split("-");
+            if (parts.length == 2 && parts[1].equals("0000")) {
+                JOptionPane.showMessageDialog(editDialog, "IDs with '-0000' are not allowed.", "Invalid ID", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Duplicate check
             for (int i = 0; i < model.getRowCount(); i++) {
-                if (i == rowIndex) {
-                    continue; 
-                }
+                if (i == rowIndex) continue; 
                 String existingId = model.getValueAt(i, 0).toString().trim();
                 String existingFirstName = model.getValueAt(i, 1).toString().trim();
                 String existingLastName = model.getValueAt(i, 2).toString().trim();
@@ -133,7 +138,7 @@ public class modifystudentGUI {
                     return;
                 }
             }
-           
+            
             int choice = JOptionPane.showConfirmDialog(
                 editDialog,
                 "Are you sure you want to update this record?",

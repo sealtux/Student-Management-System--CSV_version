@@ -20,8 +20,21 @@ public class removeprogram {
     private String programCode;
 
     public removeprogram(GUI gui, delete de, String programCode) {
-        setDependencies(gui, de);
+        this.maingui = gui;
+        this.de = de;
         this.programCode = programCode;
+
+        // Check for enrolled students under this program
+        List<String> enrolled = getStudentsByProgram(maingui, programCode);
+        if (!enrolled.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                null,
+                "Cannot delete program; there are students enrolled in this program.",
+                "Deletion Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
         int confirmation = JOptionPane.showConfirmDialog(
                 null,
@@ -36,9 +49,18 @@ public class removeprogram {
         }
     }
 
-    private void setDependencies(GUI gui, delete de) {
-        this.maingui = gui;
-        this.de = de;
+    private List<String> getStudentsByProgram(GUI gui, String programCode) {
+        DefaultTableModel studentModel = gui.getstudentModel();
+        List<String> students = new ArrayList<>();
+        if (studentModel == null) return students;
+        int colIndex = 5;
+        for (int i = 0; i < studentModel.getRowCount(); i++) {
+            String code = studentModel.getValueAt(i, colIndex).toString().trim();
+            if (code.equals(programCode)) {
+                students.add(studentModel.getValueAt(i, 0).toString()); // or any identifier
+            }
+        }
+        return students;
     }
 
     private void deleteprog() {
@@ -47,17 +69,15 @@ public class removeprogram {
             return;
         }
 
+        // Remove student records for this program
         studentTableModel = maingui.getstudentModel();
         if (studentTableModel == null) {
             System.err.println("Error: Student table model is null.");
-            return;
+        } else {
+            de.removeRowByValue(studentTableModel, programCode, 5, STUDENT_PATH);
         }
 
-        int columnIndex = 5;
-        if (columnIndex < studentTableModel.getColumnCount()) {
-            de.removeRowByValue(studentTableModel, programCode, columnIndex, STUDENT_PATH);
-        }
-
+        // Remove program from CSV and table
         programModel = maingui.getprogramModel();
         List<String[]> updatedData = readCSV(PROGRAM_FILE);
         updatedData.removeIf(row -> row.length > 0 && row[0].trim().equals(programCode));
@@ -68,7 +88,6 @@ public class removeprogram {
         JOptionPane.showMessageDialog(null, "Program deleted successfully.");
     }
 
-   
     private void refreshTable(DefaultTableModel model, List<String[]> updatedData) {
         model.setRowCount(0);
         for (String[] row : updatedData) {
@@ -77,7 +96,6 @@ public class removeprogram {
         model.fireTableDataChanged();
     }
 
-  
     private List<String[]> readCSV(String filePath) {
         List<String[]> data = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {

@@ -80,7 +80,7 @@ public class addprogGUI {
                         break;
                     }
                 }
-                
+            
                 if (duplicateFound) {
                     JOptionPane.showMessageDialog(addProgramDialog, "A record with this Program Code already exists.", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -96,6 +96,7 @@ public class addprogGUI {
                         break;
                     }
                 }
+                
                 
                 if (duplicateFound) {
                     JOptionPane.showMessageDialog(addProgramDialog, "A record with this Program Name already exists.", "Error", JOptionPane.ERROR_MESSAGE);
