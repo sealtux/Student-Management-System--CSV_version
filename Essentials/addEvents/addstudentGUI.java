@@ -35,10 +35,14 @@ public class addstudentGUI {
 
         DefaultTableModel programModel = mainGUI.getprogramModel();
         JComboBox<String> programCodeCombo = new JComboBox<>();
+        // Add empty/default item
         programCodeCombo.addItem(""); 
+        // Populate items
         for (int i = 0; i < programModel.getRowCount(); i++) {
             programCodeCombo.addItem(programModel.getValueAt(i, 0).toString().trim());
         }
+        // Set maximum visible rows to enable scrolling in the dropdown
+        programCodeCombo.setMaximumRowCount(8);
 
         idLabel.setBounds(20, 20, 65, 25);
         idField.setBounds(90, 20, 200, 25);
@@ -51,7 +55,7 @@ public class addstudentGUI {
         genderLabel.setBounds(20, 180, 65, 25);
         genderCombo.setBounds(90, 180, 200, 25);
         programCodeLabel.setBounds(20, 220, 100, 25);
-        programCodeCombo.setBounds(120, 220, 170, 25);
+        programCodeCombo.setBounds(120, 220, 200, 25);
 
         JButton submitButton = new JButton("Add Student");
         submitButton.setBounds(110, 260, 130, 30);
@@ -94,7 +98,6 @@ public class addstudentGUI {
                 }
 
                 String[] parts = id.split("-");
-
                 int year = Integer.parseInt(parts[0]);
 
                 if (year < 2000 || parts[1].equals("0000")) {
@@ -103,7 +106,6 @@ public class addstudentGUI {
                 }
 
                 DefaultTableModel studentModel = mainGUI.getstudentModel();
-                
                 for (int i = 0; i < studentModel.getRowCount(); i++) {
                     if (studentModel.getValueAt(i, 0).toString().trim().equals(id)) {
                         JOptionPane.showMessageDialog(addStudentDialog, "Student ID already exists!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -119,7 +121,6 @@ public class addstudentGUI {
                     }
                 }
 
-                
                 int decision = JOptionPane.showConfirmDialog(
                         addStudentDialog,
                         "Are you sure you want to add the following student?\n" +
@@ -133,12 +134,8 @@ public class addstudentGUI {
                         JOptionPane.QUESTION_MESSAGE
                 );
                 if (decision == JOptionPane.YES_OPTION) {
-                   
                     writer.addStudent(id, firstName, lastName, yearLevel, selectedGender, programCode);
-                    
-                  
                     studentModel.addRow(new Object[]{id, firstName, lastName, yearLevel, selectedGender, programCode});
-
                     JOptionPane.showMessageDialog(addStudentDialog, "Student added successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
                     addStudentDialog.dispose();
                 }

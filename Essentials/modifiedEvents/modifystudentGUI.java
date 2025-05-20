@@ -55,6 +55,7 @@ public class modifystudentGUI {
         
         DefaultTableModel programModel = maingui.getprogramModel();
         JComboBox<String> programCodeCombo = new JComboBox<>();
+        programCodeCombo.setMaximumRowCount(8);
         for (int i = 0; i < programModel.getRowCount(); i++) {
             programCodeCombo.addItem(programModel.getValueAt(i, 0).toString().trim());
         }
